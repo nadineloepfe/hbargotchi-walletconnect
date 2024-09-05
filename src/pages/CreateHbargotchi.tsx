@@ -4,15 +4,10 @@ import { useWalletInterface } from "../services/wallets/useWalletInterface";
 import catImage from "../assets/hbargotchi-cat.webp";
 import foxImage from "../assets/hbargotchi-fox.webp";
 import penguinImage from "../assets/hbargotchi-penguin.webp";
-import { TokenCreateTransaction, TokenMintTransaction, PrivateKey, TokenType } from "@hashgraph/sdk";
+import { TokenId, PrivateKey } from "@hashgraph/sdk";
+import "./CreateHbargotchi.css";
 
-// Define a type for walletInterface
-type WalletInterface = {
-  getSigner: () => any;
-  getProvider: () => any;
-};
-
-export default function CreateHbargotchi({ accountId }: { accountId: string }) {
+export default function CreateHbargotchi() {
   const [createTextSt, setCreateTextSt] = useState("");
   const [createLinkSt, setCreateLinkSt] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -24,76 +19,37 @@ export default function CreateHbargotchi({ accountId }: { accountId: string }) {
       return;
     }
 
-    // Check if walletInterface is null
     if (!walletInterface) {
-      setCreateTextSt("❌ Wallet is not connected. Please connect a wallet.");
+      setCreateTextSt("❌ No wallet connected.");
       return;
     }
 
     const metadata = getMetadataForImage(selectedImage);
+
     try {
-      const [hbargotchiTokenId, supply, txIdRaw] = await createAndMintHbargotchi(walletInterface, accountId, metadata);
-      setCreateTextSt(`Successfully created and minted Hbargotchi NFT with ID: ${hbargotchiTokenId} and total supply: ${supply} ✅`);
-      const txId = prettify(txIdRaw);
-      setCreateLinkSt(`https://hashscan.io/testnet/transaction/${txId}`);
-    } catch (error) {
-      if (error instanceof Error) {
-        setCreateTextSt("❌ Error minting Hbargotchi: " + error.message);
+      // First, create the NFT and get the tokenId
+      console.log("Creating NFT...");
+      const { tokenId, supplyKey } = await walletInterface.createNFT();
+      console.log("supplyKey: " + supplyKey)
+      console.log("NFT created with tokenId:", tokenId?.toString());
+
+      if (tokenId) {
+        setCreateTextSt(`NFT created with tokenId: ${tokenId.toString()}`);
+
+        // Mint the NFT using the returned tokenId
+        const mintTxId = await walletInterface.mintNFT(tokenId, metadata, supplyKey);
+        setCreateTextSt(`Successfully minted Hbargotchi NFT! Token ID: ${tokenId}`);
+        setCreateLinkSt(`https://hashscan.io/testnet/transaction/${mintTxId}`);
       } else {
-        setCreateTextSt("❌ An unknown error occurred.");
+        setCreateTextSt("❌ Failed to create NFT.");
       }
+    } catch (error: any) {
+      setCreateTextSt(`❌ Error during NFT creation: ${error.message}`);
+      console.error("Error during NFT creation:", error);
     }
   };
 
-  // Function to mint the NFT using WalletConnect
-  const createAndMintHbargotchi = async (
-    walletInterface: WalletInterface, 
-    accountId: string, 
-    metadata: string
-  ) => {
-    console.log(`- Creating and minting your personal Hbargotchi NFT...`);
-
-    // Use the walletInterface signer
-    const signer = walletInterface.getSigner();
-    const provider = walletInterface.getProvider();
-
-    const supplyKey = PrivateKey.generate();
-
-    // Create the NFT token on Hedera
-    const tokenCreateTx = await new TokenCreateTransaction()
-      .setTokenName("Hbargotchi")
-      .setTokenSymbol("HBG")
-      .setTokenType(TokenType.NonFungibleUnique)
-      .setTreasuryAccountId(accountId)
-      .setAutoRenewAccountId(accountId)
-      .setAutoRenewPeriod(7776000)
-      .setSupplyKey(supplyKey.publicKey)
-      .freezeWithSigner(signer);
-
-    const tokenCreateSubmit = await tokenCreateTx.executeWithSigner(signer);
-    const tokenCreateRx = await provider.getTransactionReceipt(tokenCreateSubmit.transactionId);
-    const hbargotchiTokenId = tokenCreateRx.tokenId;
-
-    console.log(`- Created Hbargotchi NFT with ID: ${hbargotchiTokenId}`);
-    console.log(`- Supply Key: ${supplyKey}`);
-
-    // Mint the NFT with the selected metadata
-    const tokenMintTx = await new TokenMintTransaction()
-      .setTokenId(hbargotchiTokenId)
-      .addMetadata(Buffer.from(metadata))
-      .freezeWithSigner(signer);
-
-    const signedTokenMintTx = await tokenMintTx.sign(supplyKey);
-    const tokenMintSubmit = await signedTokenMintTx.executeWithSigner(signer);
-    const tokenMintReceipt = await provider.getTransactionReceipt(tokenMintSubmit.transactionId);
-    const supply = tokenMintReceipt.totalSupply;
-
-    console.log(`- Hbargotchi NFT minted. New total supply is ${supply}`);
-    console.log(`- Transaction ID: ${tokenMintSubmit.transactionId}`);
-
-    return [hbargotchiTokenId.toString(), supply, tokenMintSubmit.transactionId.toString()];
-  };
-
+  // Function to retrieve metadata based on the selected image
   const getMetadataForImage = (image: string) => {
     switch (image) {
       case "cat":
@@ -107,42 +63,37 @@ export default function CreateHbargotchi({ accountId }: { accountId: string }) {
     }
   };
 
+  // Set the selected image on click
   const selectImage = (image: string) => {
     setSelectedImage(image);
   };
 
-  function prettify(txIdRaw: string) {
-    const a = txIdRaw.split("@");
-    const b = a[1].split(".");
-    return `${a[0]}-${b[0]}-${b[1]}`;
-  }
-
   return (
-    <Stack alignItems="center" spacing={4}>
+    <Stack alignItems="center" spacing={10}>
       <Typography variant="h4" color="white">
         Choose your pet
       </Typography>
-      <Stack direction="row" spacing={2}>
+      <Stack direction="row" spacing={7}>
         <img
           src={catImage}
           alt="Hbargotchi Cat"
           className={`hbargotchi-image ${selectedImage === "cat" ? "selected" : ""}`}
           onClick={() => selectImage("cat")}
-          style={{ cursor: "pointer", border: selectedImage === "cat" ? "2px solid blue" : "none" }}
+          style={{ cursor: "pointer" }}
         />
         <img
           src={foxImage}
           alt="Hbargotchi Fox"
           className={`hbargotchi-image ${selectedImage === "fox" ? "selected" : ""}`}
           onClick={() => selectImage("fox")}
-          style={{ cursor: "pointer", border: selectedImage === "fox" ? "2px solid blue" : "none" }}
+          style={{ cursor: "pointer" }}
         />
         <img
           src={penguinImage}
           alt="Hbargotchi Penguin"
           className={`hbargotchi-image ${selectedImage === "penguin" ? "selected" : ""}`}
           onClick={() => selectImage("penguin")}
-          style={{ cursor: "pointer", border: selectedImage === "penguin" ? "2px solid blue" : "none" }}
+          style={{ cursor: "pointer" }}
         />
       </Stack>
       {selectedImage && (

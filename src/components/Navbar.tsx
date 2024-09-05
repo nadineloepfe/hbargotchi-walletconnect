@@ -9,8 +9,9 @@ import './Nav.css';
 const pages = [
   { name: 'Create', path: '/create' },
   { name: 'Manage', path: '/manage' },
-  { name: 'FAQ', path: '/faq' },
+  { name: 'Query', path: '/query' },
   { name: 'Transfer', path: '/transfer' }, 
+  { name: 'FAQ', path: '/faq' },
 ];
 
 export default function NavBar() {

@@ -23,7 +23,7 @@ function App() {
               backgroundImage: `linear-gradient(to right, #050014, #0a0020, #10002b, #150037, #1b0042, #20004d, #260059, #2b0064), url(${colorBackground})`,
               backgroundSize: 'cover',
               backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center'
+              backgroundPosition: 'center',
             }}
           >
             <header>

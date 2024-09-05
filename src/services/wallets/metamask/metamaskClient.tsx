@@ -1,4 +1,4 @@
-import { ContractId, AccountId } from "@hashgraph/sdk";
+import { ContractId, AccountId, TokenType, PrivateKey, TokenCreateTransaction, TokenMintTransaction } from "@hashgraph/sdk";
 import { TokenId } from "@hashgraph/sdk/lib/transaction/TransactionRecord";
 import { ethers } from "ethers";
 import { useContext, useEffect } from "react";
@@ -152,6 +152,72 @@ class MetaMaskWallet implements WalletInterface {
     );
 
     return hash;
+  }
+
+  async createNFT() {
+    const provider = getProvider();
+    const addresses = await provider.listAccounts(); 
+    const signer = await provider.getSigner(); 
+  
+    try {
+      const supplyKey = PrivateKey.generate();
+
+      const tokenCreateTx = new TokenCreateTransaction()
+        .setTokenName("Hbargotchi")
+        .setTokenSymbol("HBG")
+        .setTokenType(TokenType.NonFungibleUnique)
+        .setTreasuryAccountId(addresses[0])  
+        .setAutoRenewAccountId(addresses[0]) 
+        .setAutoRenewPeriod(7776000)
+        .setSupplyKey(supplyKey.publicKey) 
+        .freeze();
+  
+      const txBytes = tokenCreateTx.toBytes();
+      const tx = await signer.populateTransaction({
+        data: ethers.utils.hexlify(txBytes),
+      });
+      const { hash } = await signer.sendTransaction(tx);
+      await provider.waitForTransaction(hash);
+  
+      console.log(`NFT created. Transaction hash: ${hash}`);
+
+      return {
+        tokenId: hash, 
+        supplyKey
+      };
+    } catch (error: any) {
+      console.warn(error.message ? error.message : error);
+      const fallbackSupplyKey = PrivateKey.generate();
+      return { tokenId: null, supplyKey: fallbackSupplyKey }; 
+    }
+  }
+
+  async mintNFT(tokenId: TokenId | string, metadata: string, supplyKey: PrivateKey) {
+    const provider = getProvider();
+    const addresses = await provider.listAccounts();
+    const signer = await provider.getSigner();
+  
+    try {
+      const tokenMintTx = new TokenMintTransaction()
+        .setTokenId(tokenId)
+        .addMetadata(Buffer.from(metadata))  
+        .freeze();
+  
+        const txBytes = tokenMintTx.toBytes();
+        const tx = await signer.populateTransaction({
+          data: ethers.utils.hexlify(txBytes), 
+        });
+  
+      // Send the transaction
+      const { hash } = await signer.sendTransaction(tx);
+      await provider.waitForTransaction(hash);
+  
+      console.log(`NFT minted. Transaction hash: ${hash}`);
+      return hash;
+    } catch (error: any) {
+      console.warn(error.message ? error.message : error);
+      return null;
+    }
   }
 
   async associateToken(tokenId: TokenId) {

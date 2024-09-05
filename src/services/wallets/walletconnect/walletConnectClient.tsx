@@ -1,7 +1,7 @@
 import { WalletConnectContext } from "../../../contexts/WalletConnectContext";
 import { useCallback, useContext, useEffect } from 'react';
 import { WalletInterface } from "../walletInterface";
-import { AccountId, ContractExecuteTransaction, ContractId, LedgerId, TokenAssociateTransaction, TokenId, Transaction, TransactionId, TransferTransaction, Client } from "@hashgraph/sdk";
+import { AccountId, ContractExecuteTransaction, ContractId, LedgerId, PrivateKey, TokenType, TokenAssociateTransaction, TokenId, Transaction, TransactionId, TransferTransaction, TokenCreateTransaction, TokenMintTransaction, Client } from "@hashgraph/sdk";
 import { ContractFunctionParameterBuilder } from "../contractFunctionParameterBuilder";
 import { appConfig } from "../../../config";
 import { SignClientTypes } from "@walletconnect/types";
@@ -107,6 +107,56 @@ class WalletConnectWallet implements WalletInterface {
     return txResult ? txResult.transactionId : null;
   }
 
+  async createNFT() {
+    const supplyKey = PrivateKey.generate(); 
+    console.log("supplyKey is: " + supplyKey)
+    const signer = this.getSigner();
+    const tokenCreateTx = new TokenCreateTransaction()
+      .setTokenName("Hbargotchi")
+      .setTokenSymbol("HBG")
+      .setTokenType(TokenType.NonFungibleUnique)
+      .setTreasuryAccountId(this.getAccountId())
+      .setAutoRenewAccountId(this.getAccountId())
+      .setAutoRenewPeriod(7776000)
+      .setSupplyKey(supplyKey.publicKey)
+      .setTransactionId(TransactionId.generate(this.getAccountId()));
+
+      const txResult = await tokenCreateTx.executeWithSigner(signer);
+      const nftCreateRx = await txResult.getReceipt(hederaClient);
+      const tokenId = nftCreateRx.tokenId;
+
+      console.log("NFT created!")
+      console.log("Token Id:" + tokenId)
+      return { tokenId, supplyKey };
+  }
+
+  async mintNFT(tokenId: TokenId | string, metadata: string, supplyKey: PrivateKey) {
+    const metadataBytes = new TextEncoder().encode(metadata);
+    const signer = this.getSigner();
+    const tokenMintTx = await new TokenMintTransaction()
+      .setTokenId(tokenId)
+      .addMetadata(metadataBytes) 
+      .setTransactionId(TransactionId.generate(this.getAccountId()))
+      .freezeWith(hederaClient);
+
+    console.log("Signing NFT with SupplyKey....")
+    console.log("supplyKey is: " + supplyKey)
+    const signedTokenMintTx = await tokenMintTx.sign(supplyKey);
+    console.log("NFT signed!")
+
+    // await signedTokenMintTx.freezeWithSigner(signer);
+    // const txResult =  await signedTokenMintTx.executeWithSigner(signer);
+
+    const txResult = await tokenMintTx.executeWithSigner(signer);
+
+    const nftMintRx = await txResult.getReceipt(hederaClient);
+
+    const supply = nftMintRx.totalSupply;
+
+    console.log(`- Hbargotchi NFT minted. New total supply is ${supply}`);
+
+    return txResult ? txResult.transactionId : null;
+  }
   // Purpose: build contract execute transaction and send to wallet for signing and execution
   // Returns: Promise<TransactionId | null>
   async executeContractFunction(contractId: ContractId, functionName: string, functionParameters: ContractFunctionParameterBuilder, gasLimit: number) {

@@ -1,0 +1,24 @@
+  {
+    "name": "Hbargotchi Fox",
+    "creator": "Nadine Loepfe feat. DALL-E",
+    "description": "A cute Hbargotchi Fox NFT",
+    "image": "ipfs://bafybeibkkrpt5fdq5tidnzycxnr6vxhnc2adgpslc65ljk2d72vs6rg5ei",
+    "type": "image/png",
+    "properties": {
+        "license": "MIT-0",
+        "collection": "Hbargotchi",
+        "website": "www.hashgraph.com",
+                "isCollectible": true,
+        "type": "Fox",
+        "rarity": "Rare",
+        "character": "Curious"
+    },
+    "files": [
+      {
+          "uri": "https://myserver.com/high-resolution-nft-001.png",
+          "checksum": "9defbb6402d4bf39f2ea580099c73194647b24a659b6f6b778e3dd71755b8862",
+          "is_default_file": true,
+          "type": "image/png"
+      }
+  ]
+}

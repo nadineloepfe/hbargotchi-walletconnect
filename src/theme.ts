@@ -2,7 +2,19 @@ import { createTheme } from "@mui/material";
 
 export const theme = createTheme({
   typography: {
-    fontFamily: '"Styrene A Web", "Helvetica Neue", Sans-Serif',
+    fontFamily: '"TamaConnectType", "Helvetica Neue", Sans-Serif',
+    h1: {
+      fontFamily: '"TamaConnectType", sans-serif',
+      fontWeight: 'normal', 
+    },
+    h2: {
+      fontFamily: '"TamaConnectType", sans-serif',
+      fontWeight: 'normal',
+    },
+    body1: {
+      fontFamily: '"Styrene A Web", sans-serif',
+      fontWeight: 'normal',
+    }
   },
   palette: {
     mode: 'dark',

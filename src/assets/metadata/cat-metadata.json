@@ -1,0 +1,23 @@
+  {
+    "name": "Hbargotchi Cat",
+    "creator": "Nadine Loepfe feat. DALL-E",
+    "description": "A cute Hbargotchi Cat NFT",
+    "image": "ipfs://bafybeig3shys7ti6ascmjor4nms4tww75hlornz4nhvm2gsnm5ruxt7rlu",
+    "type": "image/jpg",
+    "properties": {
+        "license": "MIT-0",
+        "collection": "Hbargotchi",
+        "website": "www.hashgraph.com",
+                "isCollectible": true,
+        "type": "Cat",
+        "rarity": "Rare",
+        "character": "Playful"
+    },
+    "files": [
+      {
+          "uri": "ipfs://bafybeicnoxvoyzb2dov3gar27btawz7l2go6csosvikcqausukzfwxxqku",
+          "is_default_file": true,
+          "type": "image/png"
+      }
+  ]
+}

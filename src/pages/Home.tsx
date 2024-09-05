@@ -17,44 +17,11 @@ export default function Home() {
         variant="h4"
         color="white"
       >
-        Let's buidl a dApp on Hedera
+        <h4>Welcome to Hbargotchi</h4>
+        <p>Create, mint, and take care of your own Web3 pet!</p>
       </Typography>
       {walletInterface !== null && (
         <>
-          <Stack
-            direction='row'
-            gap={2}
-            alignItems='center'
-          >
-            <Typography>
-              Transfer
-            </Typography>
-            <TextField
-              type='number'
-              label='amount'
-              value={amount}
-              onChange={(e) => setAmount(parseInt(e.target.value))}
-              sx={{
-                maxWidth: '100px'
-              }} />
-            <Typography>
-              HBAR
-              to
-            </Typography>
-            <TextField
-              value={toAccountId}
-              onChange={(e) => setToAccountId(e.target.value)}
-              label='account id or evm address'
-            />
-            <Button
-              variant='contained'
-              onClick={async () => {
-                const txId = await walletInterface.transferHBAR(AccountId.fromString(toAccountId), amount);
-              }}
-            >
-              <SendIcon />
-            </Button>
-          </Stack>
         </>
       )}
     </Stack>

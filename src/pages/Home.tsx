@@ -5,6 +5,12 @@ import { ContractFunctionParameterBuilder } from "../services/wallets/contractFu
 import { useWalletInterface } from "../services/wallets/useWalletInterface";
 import SendIcon from '@mui/icons-material/Send';
 import { useState } from "react";
+import { Hero } from './landingpage/Hero';
+import Intro from './landingpage/Intro';
+import Features from './landingpage/Features';
+import Links from './landingpage/Links';
+import FAQ from './FAQ';
+
 
 export default function Home() {
   const { walletInterface } = useWalletInterface();
@@ -13,13 +19,15 @@ export default function Home() {
 
   return (
     <Stack alignItems="center" spacing={4}>
-      <Typography
-        variant="h4"
-        color="white"
-      >
-        <h4>Welcome to Hbargotchi</h4>
-        <p>Create, mint, and take care of your own Web3 pet!</p>
-      </Typography>
+      <Hero />
+      <br></br>
+      <Intro />
+      <br></br>
+      <Features />
+      <br></br>
+      <FAQ />
+      <br></br>
+      <Links />
       {walletInterface !== null && (
         <>
         </>

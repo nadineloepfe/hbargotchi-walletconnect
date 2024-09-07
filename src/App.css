@@ -1,31 +1,127 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
-@font-face {
-  font-family: 'TamaConnectType';
-  src: url('../assets/fonts/tamaconnecttype.woff2') format('woff2'),
-       url('../assets/fonts/tamaconnecttype.woff') format('woff'),
-       url('../assets/fonts/tamaconnecttype.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background: linear-gradient(to right, #050014, #0a0020, #10002b, #150037, #1b0042, #20004d, #260059, #2b0064);
-    background-size: cover;
-    background-position: center;
-    font-family: 'Inter', sans-serif;
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-code {
-  font-family: 'TamaConnectType', sans-serif;
+h1, h2, h3, h4, p {
+  margin: 0;
+  padding: 0;
 }
 
-h1, h2 {
-  font-family: 'TamaConnectType', sans-serif;
+h1 {
+  font-size: calc(24px + 1.5vw);
+  line-height: 1.2;
 }
+
+h2 {
+  font-size: calc(20px + 1.2vw);
+  line-height: 1.3;
+}
+
+p {
+  font-size: calc(14px + 1vw);
+  line-height: 1.5;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px; 
+  margin: 0 auto;    
+  padding: 20px;
+}
+
+.section {
+  padding: 40px 20px;
+}
+
+.section-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+img {
+  max-width: 100%;
+  height: auto; 
+}
+
+
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  p {
+    font-size: 14px;
+  }
+
+  .section-centered {
+    text-align: center;
+    padding: 20px;
+  }
+
+  button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+
+@media screen and (max-width: 480px) {
+  h1 {
+    font-size: 18px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
+
+  p {
+    font-size: 12px;
+  }
+
+  .container {
+    padding: 5px;
+  }
+
+  button {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
+
 
 
 .builtOnHederaSVG  {
@@ -51,3 +147,4 @@ h1, h2 {
   width: 30px;
   height: auto;
 }
+

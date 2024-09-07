@@ -1,23 +1,18 @@
-import { Box } from '@mui/material';
-import BuiltOnHedera from "../assets/built-on-hedera.svg";
+import { Box, Typography } from "@mui/material";
 
 export default function Footer() {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
-      <Box
-        className='footer'
+    <Box component="footer" sx={{ background: 'black', color: 'grey', padding: 1, textAlign: 'center' }}>
+      <Typography
+        variant="body2"
+        sx={{
+          fontFamily: 'Styrene A Web, sans-serif',  
+          fontSize: '0.8rem',                      
+          color: 'grey'                          
+        }}
       >
-          <img 
-            src={BuiltOnHedera}
-            alt='An upper case H with a line through the top and the text Build on Hedera'
-            className='builtOnHederaSVG'
-          />
-      </Box>
+        Privacy Policy
+      </Typography>
     </Box>
   );
 }

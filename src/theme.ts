@@ -16,6 +16,16 @@ export const theme = createTheme({
       fontWeight: 'normal',
     }
   },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          fontFamily: '"Styrene A Web", sans-serif', 
+          fontWeight: 'bold', 
+        },
+      },
+    },
+  },
   palette: {
     mode: 'dark',
     primary: {

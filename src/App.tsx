@@ -4,23 +4,23 @@ import NavBar from './components/Navbar';
 import { Box, ThemeProvider } from '@mui/material';
 import { AllWalletsProvider } from './services/wallets/AllWalletsProvider';
 import AppRouter from './AppRouter';
-import colorBackground from './assets/colors.png';
 import { theme } from './theme';
-import { BrowserRouter as Router } from "react-router-dom"; // Import Router here
+import { BrowserRouter as Router } from "react-router-dom"; 
+import "./App.css";
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <AllWalletsProvider>
         <CssBaseline />
-        <Router>  {/* Wrap the entire application in Router here */}
+        <Router>  
           <Box
             sx={{
               display: 'flex',
               flexDirection: 'column',
               minHeight: '100vh',
               backgroundColor: '#222222',
-              backgroundImage: `linear-gradient(to right, #050014, #0a0020, #10002b, #150037, #1b0042, #20004d, #260059, #2b0064), url(${colorBackground})`,
+              backgroundImage: `linear-gradient(to right, #050014, #0a0020, #10002b, #150037, #1b0042, #20004d, #260059, #2b0064)`,
               backgroundSize: 'cover',
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
@@ -35,7 +35,7 @@ function App() {
             >
               <AppRouter />
             </Box>
-            {/* <Footer /> */}
+            <Footer />
           </Box>
         </Router>
       </AllWalletsProvider>

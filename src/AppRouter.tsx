@@ -1,19 +1,20 @@
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
-import Manage from "./pages/Manage";
-import TransferToken from "./pages/TransferToken";
-import QueryToken from "./pages/QueryToken";
-import CreateHbargotchi from "./pages/CreateHbargotchi";
+import View from "./pages/View";
+import Feed from "./pages/Feed";
+import Gift from "./pages/Gift";
+import Adopt from "./pages/Adopt";
+import Faq from "./pages/FAQ";
 
 export default function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/create" element={<CreateHbargotchi />} />
-      <Route path="/manage" element={<Manage />} />
-      <Route path="/query" element={<QueryToken />} />
-      <Route path="/transfer" element={<TransferToken />} />
-      {/* Add more routes here as needed */}
+      <Route path="/adopt" element={<Adopt />} />
+      <Route path="/view" element={<View />} />
+      <Route path="/gift" element={<Gift />} />
+      <Route path="/feed" element={<Feed />} />
+      <Route path="/faq" element={<Faq />} />
     </Routes>
   );
 }

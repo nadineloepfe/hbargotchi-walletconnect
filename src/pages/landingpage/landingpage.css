@@ -1,0 +1,109 @@
+@font-face {
+  font-family: 'TamaConnectType';
+  src: url('../../../public/fonts/tamaconnecttype.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+
+h1 {
+  font-family: 'TamaConnectType', sans-serif;
+}
+
+.welcome-title {
+  text-align: left; 
+}
+
+.welcome {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.site-title {
+  color: #d93efb;
+}
+
+.hero-buttons {
+  margin-top: 20px;
+}
+
+.hero-buttons a {
+  margin-right: 15px;
+}
+
+.hero-buttons .MuiButton-root {
+  background-color: #007bff; 
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.hero-buttons .MuiButton-root:hover {
+  background-color: #0056b3; 
+}
+
+@keyframes flyInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes flyInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.fly-in-left {
+  animation: flyInLeft 1s ease-out forwards;
+}
+
+.fly-in-right {
+  animation: flyInRight 1s ease-out forwards;
+}
+
+
+.fly-in-left {
+  animation: flyInLeft 1s ease-out forwards !important;
+}
+
+.fly-in-right {
+  animation: flyInRight 1s ease-out forwards !important;
+}
+
+.MuiButton-root {
+  font-family: 'Styrene A Web', sans-serif !important;
+}
+
+
+.feature-card {
+  width: 70%;  
+  margin: 0 auto;  
+  border-radius: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.card-content {
+  padding: 20px; 
+}
+
+.feature-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 0;  
+}

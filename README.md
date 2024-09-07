@@ -1,27 +1,13 @@
-# Hedera DApp Integrated with WalletConnect
-Explore DApp development using the Mirror Node API and Hedera Token Service (HTS). Discover how to integrate HTS functionality into your DApp for seamless token management and transactions. This guide uses React, Material UI, Ethers, and TypeScript with the [Create React App (CRA) Hedera DApp template](https://github.com/hedera-dev/cra-hedera-dapp-template) integrated with walletconnect, streamlining your development process.
+# Hbargotchi dApp with WalletConnect
 
-## Tutorial
-This repo is intended to be used alongside the tutorial:
-[Create a Hedera DApp Integrated with WalletConnect](https://docs.hedera.com/hedera/tutorials/more-tutorials/develop-a-hedera-dapp-integrated-with-walletconnect)
+Welcome to Hbargotchi, a decentralised, virtual pet project built on Hedera Hashgraph. Users can create, mint, and take care of their own digital pets, combining the nostalgia of virtual pets with modern web3 technology, while experiencing the Mirror Node API & Hedera Token Service (HTS).
 
-To follow along, start with the `main` branch,
-which is the default branch of this repo.
-This gives you the initial state from which you can follow along
-with the steps as described in the tutorial.
+tbc: Hedera Consensus Service (HCS) as well as Hedera Smart Contract Service (HSCS)
 
-```shell
-git clone git+ssh://git@github.com/hedera-dev/multi-wallet-hedera-transfer-dapp.git
-```
+This project uses React, Material UI, Ethers, and TypeScript and uses the [Create React App (CRA) Hedera DApp template](https://github.com/hedera-dev/cra-hedera-dapp-template) template as a base.
+Fully integrated with walletconnect, streamlining your development process.
 
-To skip ahead to the final state, use the `completed` branch.
-This gives you the final state with which you can compare your implementation
-to the completed steps of the tutorial.
 
-```shell
-git fetch origin completed:complete
-git checkout completed
-```
 ## Completed Branch Usage
 
 1. Execute ```npm i```

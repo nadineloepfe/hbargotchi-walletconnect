@@ -144,19 +144,14 @@ class WalletConnectWallet implements WalletInterface {
     const signedTokenMintTx = await tokenMintTx.sign(supplyKey);
     console.log("NFT signed!")
 
-    // await signedTokenMintTx.freezeWithSigner(signer);
-    // const txResult =  await signedTokenMintTx.executeWithSigner(signer);
-
     const txResult = await tokenMintTx.executeWithSigner(signer);
-
     const nftMintRx = await txResult.getReceipt(hederaClient);
-
     const supply = nftMintRx.totalSupply;
-
     console.log(`- Hbargotchi NFT minted. New total supply is ${supply}`);
 
     return txResult ? txResult.transactionId : null;
   }
+  
   // Purpose: build contract execute transaction and send to wallet for signing and execution
   // Returns: Promise<TransactionId | null>
   async executeContractFunction(contractId: ContractId, functionName: string, functionParameters: ContractFunctionParameterBuilder, gasLimit: number) {

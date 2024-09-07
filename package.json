@@ -11,6 +11,7 @@
     "@mui/material": "^5.13.0",
     "@types/node": "^16.18.31",
     "@walletconnect/modal": "^2.6.2",
+    "classnames": "^2.5.1",
     "dotenv": "^16.1.3",
     "ethers": "^5.7.2",
     "react": "^18.3.1",

@@ -1,7 +1,7 @@
 import { WalletConnectContext } from "../../../contexts/WalletConnectContext";
 import { useCallback, useContext, useEffect } from 'react';
 import { WalletInterface } from "../walletInterface";
-import { AccountId, ContractExecuteTransaction, ContractId, LedgerId, PrivateKey, TokenType, TokenAssociateTransaction, TokenId, Transaction, TransactionId, TransferTransaction, TokenCreateTransaction, TokenMintTransaction, Client } from "@hashgraph/sdk";
+import { AccountId, ContractExecuteTransaction, TopicMessageSubmitTransaction, ContractId, TopicId, LedgerId, PrivateKey, TokenType, TokenAssociateTransaction, TokenId, Transaction, TransactionId, TransferTransaction, TokenCreateTransaction, TokenMintTransaction, Client } from "@hashgraph/sdk";
 import { ContractFunctionParameterBuilder } from "../contractFunctionParameterBuilder";
 import { appConfig } from "../../../config";
 import { SignClientTypes } from "@walletconnect/types";
@@ -104,6 +104,17 @@ class WalletConnectWallet implements WalletInterface {
     const signer = this.getSigner();
     await associateTokenTransaction.freezeWithSigner(signer);
     const txResult = await associateTokenTransaction.executeWithSigner(signer);
+    return txResult ? txResult.transactionId : null;
+  }
+
+  async sendMessage(topicId: TopicId, message: string) {
+    const topicMessageTransaction = new TopicMessageSubmitTransaction()
+      .setTopicId(topicId)
+      .setMessage(message);
+  
+    const signer = this.getSigner();
+    await topicMessageTransaction.freezeWithSigner(signer);
+    const txResult = await topicMessageTransaction.executeWithSigner(signer);
     return txResult ? txResult.transactionId : null;
   }
 

@@ -1,4 +1,4 @@
-import { ContractId, AccountId, TokenType, PrivateKey, TokenCreateTransaction, TokenMintTransaction } from "@hashgraph/sdk";
+import { ContractId, AccountId, TokenType, TopicId, PrivateKey, TokenCreateTransaction, TokenMintTransaction } from "@hashgraph/sdk";
 import { TokenId } from "@hashgraph/sdk/lib/transaction/TransactionRecord";
 import { ethers } from "ethers";
 import { useContext, useEffect } from "react";
@@ -233,6 +233,29 @@ class MetaMaskWallet implements WalletInterface {
     return hash;
   }
 
+  async sendMessage(topicId: TopicId, message: string) {
+    // Convert the topicId to a ContractId 
+    const contractId = ContractId.fromString(topicId.toString());
+    // Prepare the contract function parameters
+    const parameters = new ContractFunctionParameterBuilder();
+    parameters.addParam({
+      type: "string",  
+      name: "message", 
+      value: message  
+    });  // Add message as a parameter to the contract function
+  
+    // Execute the contract function via MetaMask
+    const hash = await this.executeContractFunction(
+      contractId,               
+      'submitMessage',           
+      parameters,                
+      appConfig.constants.METAMASK_GAS_LIMIT_SEND_MESSAGE  
+    );
+  
+    return hash;
+  }
+
+
   // Purpose: build contract execute transaction and send to hashconnect for signing and execution
   // Returns: Promise<TransactionId | null>
   async executeContractFunction(contractId: ContractId, functionName: string, functionParameters: ContractFunctionParameterBuilder, gasLimit: number) {
@@ -300,4 +323,3 @@ export const MetaMaskClient = () => {
 
   return null;
 }
-

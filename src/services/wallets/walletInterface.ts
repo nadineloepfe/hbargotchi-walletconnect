@@ -1,4 +1,4 @@
-import { AccountId, ContractId, TokenId, PrivateKey, TransactionId } from "@hashgraph/sdk";
+import { AccountId, ContractId, TokenId, TopicId, PrivateKey, TransactionId } from "@hashgraph/sdk";
 import { ContractFunctionParameterBuilder } from "./contractFunctionParameterBuilder";
 
 export interface WalletInterface {
@@ -10,4 +10,5 @@ export interface WalletInterface {
   associateToken: (tokenId: TokenId) => Promise<TransactionId | string | null>;
   createNFT: () => Promise<{ tokenId: TokenId | string | null; supplyKey: PrivateKey }>;
   mintNFT: (tokenId: TokenId | string, metadata: string, supplyKey: PrivateKey)  => Promise<TransactionId | string | null>;
+  sendMessage: (topicId: TopicId, message: string) => Promise<TransactionId | string | null>;
 }

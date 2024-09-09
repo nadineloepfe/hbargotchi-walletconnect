@@ -38,6 +38,9 @@ export default function View() {
       .catch(error => console.error("Error fetching NFTs:", error));
   }, [accountId]);
 
+    // ----------------------------------------------
+  // NOTE: Mirror Node version 
+  // ----------------------------------------------
   // const fetchMetadata = async () => {
   //   if (!selectedTokenId) return;
 
@@ -53,6 +56,9 @@ export default function View() {
   //   }
   // };
 
+  // ----------------------------------------------
+  // NOTE: walletConnect version 
+  // ----------------------------------------------
   const fetchMetadata = async () => {
     if (!selectedTokenId || !walletInterface) {
       console.error("No token selected or wallet interface is unavailable.");
@@ -73,9 +79,12 @@ export default function View() {
     }
   };
 
+  // ----------------------------------------------
+  // NOTE: Vanilla JS/hardcoded client version 
+  // ----------------------------------------------
   // const fetchMetadata = async () => {
-  //   const operatorId = AccountId.fromString("0.0.4668437")
-  //   const operatorKey = PrivateKey.fromString("302e020100300506032b657004220420dae3977894de2f649342eb51c8e8c5cdcb4d7d3b94b764bf33e8fb5de7019749");
+  //   const operatorId = AccountId.fromString("")
+  //   const operatorKey = PrivateKey.fromString("");
   //   const client = Client.forTestnet().setOperator(operatorId, operatorKey);
   //   try {
   //     // Create the query for token info

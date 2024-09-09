@@ -1,0 +1,25 @@
+  {
+    "name": "Hbargotchi Frog",
+    "creator": "Hbargotchi god feat. DALL-E",
+    "description": "A cute Hbargotchi Frog NFT",
+    "image": "ipfs://QmWwz7r1B4K3XzTC8kV4m97b6JkJ12r6RThp4VxuNER3DQ",
+    "type": "image/jpg",
+    "properties": {
+        "license": "MIT-0",
+        "collection": "Hbargotchi",
+        "website": "www.hashgraph.com",
+                "isCollectible": true,
+        "type": "Frog",
+        "rarity": "Rare",
+        "character": "Calm",
+        "happiness": "Neutral",
+        "playscore": 1
+    },
+    "files": [
+      {
+          "uri": "ipfs://QmNdvZRHEAgmj8xXLCQQvb3vT3sN17fQF7zxS1Q1fMQW8d",
+          "is_default_file": true,
+          "type": "image/webp"
+      }
+  ]
+}

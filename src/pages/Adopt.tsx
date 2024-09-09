@@ -36,8 +36,10 @@ export default function Adopt() {
       console.log("supplyKey: " + supplyKey)
       console.log("NFT created with tokenId:", tokenId?.toString());
 
+      // const tokenId = TokenId.fromString("0.0.4840057")
+      // const supplyKey = PrivateKey.fromString("302e020100300506032b6570042204200f05d7d57e9243ab01965549328c5e772162fad831ffb034e9801390f06bc5f8")
       if (tokenId) {
-        setCreateTextSt(`NFT created with tokenId: ${tokenId.toString()}`);
+      //   setCreateTextSt(`NFT created with tokenId: ${tokenId.toString()}`);
 
         // Mint 
         const mintTxId = await walletInterface.mintNFT(tokenId, metadata, supplyKey);
@@ -61,6 +63,8 @@ export default function Adopt() {
         return "ipfs://bafybeiapimahbagjaqsxetdhucsqyttm4brtyqp45ntlhsx7miecgx463y";
       case "penguin":
         return "ipfs://bafybeic4wltfkcmeuw2y2owtfni6mu4tvniys5ooyxm7yzbnqxhecjpuau";
+      case "frog":
+        return "ipfs://QmaFrP2gsP5ZWhuf3EspV9YZvS7G3MSj5bKcenNd9d3TEi";
       default:
         return "";
     }

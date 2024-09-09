@@ -2,14 +2,14 @@ import { Button, TextField, Typography } from "@mui/material";
 import { Stack } from "@mui/system";
 import { useState } from "react";
 import { useWalletInterface } from "../services/wallets/useWalletInterface";
-import { AccountId, TokenId } from "@hashgraph/sdk";
+import { AccountId, TokenId, PrivateKey } from "@hashgraph/sdk";
 
 export default function FeedHbargotchi() {
   const { walletInterface, accountId } = useWalletInterface();
   const [foodAmount, setFoodAmount] = useState<number | "">(""); // Handle empty state correctly
-  const [hbarCost, setHbarCost] = useState(0); 
 
-  const foodTokenId = TokenId.fromString("0.0.4828893"); 
+  const foodTokenId = TokenId.fromString("0.0.4841066");
+  const foodTokenSupplyKey = PrivateKey.fromString("302e020100300506032b657004220420c99c793170e81d0910cb74bc4f4ed8182454e10edc86a4f2d38d970c8e5f7db8") 
   const treasuryAccountId = AccountId.fromString("0.0.4668437"); 
 
   // Feed the pet (send 20 $FOOD tokens to the treasury)
@@ -30,32 +30,31 @@ export default function FeedHbargotchi() {
     const amount = parseInt(e.target.value, 10);
     if (!isNaN(amount) && amount > 0) {
       setFoodAmount(amount);
-      setHbarCost(amount / 5); // 1 HBAR is worth 5 $FOOD tokens
     } else {
-      setFoodAmount(""); // Clear the input on invalid amount
-      setHbarCost(0);
+      setFoodAmount(""); 
     }
   };
 
-  // Buy food tokens function
-  const buyFoodTokens = async () => {
+  // Mint food tokens function - to be replaced with actual token swap logic later
+  const mintFoodTokens = async () => {
     if (!walletInterface || !accountId || foodAmount === "") return;
     if (foodAmount <= 0) {
       console.log("Please enter a valid amount of $FOOD tokens.");
       return;
     }
 
-    const hbarAmount = hbarCost; // Calculate how much HBAR will be sent to the treasury
+    try {
+      // Mint the food tokens directly to the user's account
+      const txId = await walletInterface.mintFoodTokens(
+        foodTokenId, 
+        foodAmount,
+        foodTokenSupplyKey
+      );
 
-    // Send HBAR to the treasury in exchange for $FOOD tokens
-    const txId = await walletInterface.transferHBAR(
-      treasuryAccountId, 
-      hbarAmount // Send the HBAR equivalent of the $FOOD tokens
-    );
-
-    console.log(`Purchased ${foodAmount} $FOOD tokens for ${hbarAmount} HBAR. Transaction ID: ${txId}`);
-
-    // In a real-world scenario, the treasury would then distribute the equivalent $FOOD tokens back to the user
+      console.log(`Minted ${foodAmount} $FOOD tokens. Transaction ID: ${txId}`);
+    } catch (error) {
+      console.error("Error minting food tokens: ", error);
+    }
   };
 
   return (
@@ -84,16 +83,13 @@ export default function FeedHbargotchi() {
           <TextField
             type="number"
             label="Amount of $FOOD Tokens"
-            value={foodAmount === "" ? "" : foodAmount} // Ensure it shows empty instead of "0"
+            value={foodAmount === "" ? "" : foodAmount} 
             onChange={handleFoodAmountChange}
             sx={{ width: '250px' }}
           />
-          <Typography variant="body1" color="white">
-            {`This will cost ${hbarCost} HBAR`}
-          </Typography>
           <Button
             variant="contained"
-            onClick={buyFoodTokens}
+            onClick={mintFoodTokens} 
             sx={{ background: 'linear-gradient(90deg, #6a11cb, #2575fc)' }}
           >
             Buy

@@ -1,18 +1,19 @@
 import { Button, MenuItem, TextField, Typography } from "@mui/material";
 import { Stack } from "@mui/system";
 import { useEffect, useState } from "react";
-import { AccountId } from "@hashgraph/sdk";
+import { AccountId, TokenInfoQuery, Client, PrivateKey } from "@hashgraph/sdk";
 import { MirrorNodeClient, MirrorNodeNftInfo, MirrorNodeTokenInfo } from "../services/wallets/mirrorNodeClient"; // Added MirrorNodeTokenInfo
 import { useWalletInterface } from "../services/wallets/useWalletInterface";
 import { appConfig } from "../config";
 
-export default function Manage() {
+export default function View() {
   const { accountId } = useWalletInterface();
   const [availableNfts, setAvailableNfts] = useState<MirrorNodeNftInfo[]>([]);
   const [hbargotchiNfts, setHbargotchiNfts] = useState<MirrorNodeNftInfo[]>([]); 
   const [selectedTokenId, setSelectedTokenId] = useState<string>('');
   const [metadataResponse, setMetadataResponse] = useState<string | null>(null);
   const [showMetadata, setShowMetadata] = useState<boolean>(false);
+  const { walletInterface } = useWalletInterface();
 
   useEffect(() => {
     if (!accountId) return;
@@ -37,20 +38,62 @@ export default function Manage() {
       .catch(error => console.error("Error fetching NFTs:", error));
   }, [accountId]);
 
+  // const fetchMetadata = async () => {
+  //   if (!selectedTokenId) return;
+
+  //   const mirrorNodeClient = new MirrorNodeClient(appConfig.networks.testnet);
+
+  //   try {
+  //     const nftDetails = await mirrorNodeClient.getNftDetails(selectedTokenId);
+  //     const rawMetadata = JSON.stringify(nftDetails, null, 2); 
+  //     setMetadataResponse(rawMetadata);
+  //     setShowMetadata(true);
+  //   } catch (error) {
+  //     console.error("Error fetching NFT details:", error);
+  //   }
+  // };
+
   const fetchMetadata = async () => {
-    if (!selectedTokenId) return;
-
-    const mirrorNodeClient = new MirrorNodeClient(appConfig.networks.testnet);
-
+    if (!selectedTokenId || !walletInterface) {
+      console.error("No token selected or wallet interface is unavailable.");
+      return;
+    }
+  
     try {
-      const nftDetails = await mirrorNodeClient.getNftDetails(selectedTokenId);
-      const rawMetadata = JSON.stringify(nftDetails, null, 2); 
-      setMetadataResponse(rawMetadata);
-      setShowMetadata(true);
+      const metadata = await walletInterface.fetchTokenInfo(selectedTokenId);
+      
+      if (metadata) {
+        setMetadataResponse(metadata);
+        setShowMetadata(true);
+      } else {
+        console.error("No metadata available");
+      }
     } catch (error) {
-      console.error("Error fetching NFT details:", error);
+      console.error("Error fetching metadata:", error);
     }
   };
+
+  // const fetchMetadata = async () => {
+  //   const operatorId = AccountId.fromString("0.0.4668437")
+  //   const operatorKey = PrivateKey.fromString("302e020100300506032b657004220420dae3977894de2f649342eb51c8e8c5cdcb4d7d3b94b764bf33e8fb5de7019749");
+  //   const client = Client.forTestnet().setOperator(operatorId, operatorKey);
+  //   try {
+  //     // Create the query for token info
+  //     const tokenInfo = await new TokenInfoQuery().setTokenId(selectedTokenId).execute(client);
+  
+  //     // Log token info
+  //     console.log("Token Info:", tokenInfo);
+  
+  //     // If metadata exists, decode it
+  //     if (tokenInfo.metadata) {
+  //           console.log(tokenInfo.metadata)
+  //         } else {
+  //           console.error("No metadata available");
+  //         }
+  //       } catch (error) {
+  //         console.error("Error fetching metadata:", error);
+  //       }
+  //     };
 
   return (
     <Stack alignItems="center" spacing={4}>

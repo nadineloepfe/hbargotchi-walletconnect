@@ -1,7 +1,7 @@
 import { WalletConnectContext } from "../../../contexts/WalletConnectContext";
 import { useCallback, useContext, useEffect } from 'react';
 import { WalletInterface } from "../walletInterface";
-import { AccountId, ContractExecuteTransaction, TopicMessageSubmitTransaction, ContractId, TopicId, LedgerId, PrivateKey, TokenType, TokenAssociateTransaction, TokenId, Transaction, TransactionId, TransferTransaction, TokenCreateTransaction, TokenMintTransaction, Client } from "@hashgraph/sdk";
+import { AccountId, TokenInfoQuery, ContractExecuteTransaction, TopicMessageSubmitTransaction, ContractId, TopicId, LedgerId, PrivateKey, TokenType, TokenAssociateTransaction, TokenId, Transaction, TransactionId, TransferTransaction, TokenCreateTransaction, TokenMintTransaction, Client } from "@hashgraph/sdk";
 import { ContractFunctionParameterBuilder } from "../contractFunctionParameterBuilder";
 import { appConfig } from "../../../config";
 import { SignClientTypes } from "@walletconnect/types";
@@ -18,11 +18,13 @@ const currentNetworkConfig = appConfig.networks.testnet;
 const hederaNetwork = currentNetworkConfig.network;
 const hederaClient = Client.forName(hederaNetwork);
 
+const topicId = TopicId.fromString("0.0.4839813");
+
 // Adapted from walletconnect dapp example:
 // https://github.com/hashgraph/hedera-wallet-connect/blob/main/src/examples/typescript/dapp/main.ts#L87C1-L101C4
 const metadata: SignClientTypes.Metadata = {
-  name: "Hedera CRA Template",
-  description: "Hedera CRA Template",
+  name: "Hbargotchi",
+  description: "Hbargotchi",
   url: window.location.origin,
   icons: [window.location.origin + "/logo192.png"],
 }
@@ -83,6 +85,12 @@ class WalletConnectWallet implements WalletInterface {
     const signer = this.getSigner();
     await transferTokenTransaction.freezeWithSigner(signer);
     const txResult = await transferTokenTransaction.executeWithSigner(signer);
+
+    // Log the transfer event to the Hedera Consensus Service
+    const message = `${amount} of $FOOD Token transferred from ${this.getAccountId()} to ${toAddress.toString()}`;
+    const interactionHash = await this.sendMessage(topicId, message);
+    console.log(`- Interaction logged to HCS. Message hash: ${interactionHash}`);
+
     return txResult ? txResult.transactionId : null;
   }
 
@@ -93,6 +101,12 @@ class WalletConnectWallet implements WalletInterface {
     const signer = this.getSigner();
     await transferTokenTransaction.freezeWithSigner(signer);
     const txResult = await transferTokenTransaction.executeWithSigner(signer);
+
+    // Log the transfer event to the Hedera Consensus Service
+    const message = `Hbargotchi with ID ${tokenId} transferred from ${this.getAccountId()} to ${toAddress.toString()}`;
+    const interactionHash = await this.sendMessage(topicId, message);
+    console.log(`- Interaction logged to HCS. Message hash: ${interactionHash}`);
+
     return txResult ? txResult.transactionId : null;
   }
 
@@ -104,6 +118,13 @@ class WalletConnectWallet implements WalletInterface {
     const signer = this.getSigner();
     await associateTokenTransaction.freezeWithSigner(signer);
     const txResult = await associateTokenTransaction.executeWithSigner(signer);
+    console.log(`Associated user with token ${tokenId}`);
+
+    // Log the transfer event to the Hedera Consensus Service
+    const message = `${this.getAccountId()} associated with ${tokenId} Token! Welcome to the club!`;
+    const interactionHash = await this.sendMessage(topicId, message);
+    console.log(`- Interaction logged to HCS. Message hash: ${interactionHash}`);
+
     return txResult ? txResult.transactionId : null;
   }
 
@@ -136,10 +157,33 @@ class WalletConnectWallet implements WalletInterface {
       const nftCreateRx = await txResult.getReceipt(hederaClient);
       const tokenId = nftCreateRx.tokenId;
 
-      console.log("NFT created!")
-      console.log("Token Id:" + tokenId)
+      // Log the NFT create event to the Hedera Consensus Service
+      const message = `NFT created with tokenId ${tokenId}`;
+      const interactionHash = await this.sendMessage(topicId, message);
+      console.log(`- Interaction logged to HCS. Message hash: ${interactionHash}`);
+
+      console.log("NFT created! Token Id" + tokenId)
+      console.log("SupplyKey:" + supplyKey)
       return { tokenId, supplyKey };
   }
+
+
+  async mintFoodTokens(tokenId: TokenId | string, amount: number, supplyKey: PrivateKey) {
+    const tokenMintTx = new TokenMintTransaction()
+      .setTokenId(tokenId)
+      .setAmount(amount)
+      .setTransactionId(TransactionId.generate(this.getAccountId()))
+      .freezeWith(hederaClient);
+  
+    const signer = this.getSigner();
+    // await tokenMintTx.freezeWithSigner(signer);
+    const signedTokenMintTx = await tokenMintTx.sign(supplyKey);
+    console.log("NFT signed!")
+    const txResult = await signedTokenMintTx.executeWithSigner(signer);
+    console.log(`Minted ${amount} $FOOD tokens.`);
+    return txResult ? txResult.transactionId : null;
+  }
+  
 
   async mintNFT(tokenId: TokenId | string, metadata: string, supplyKey: PrivateKey) {
     const metadataBytes = new TextEncoder().encode(metadata);
@@ -155,12 +199,34 @@ class WalletConnectWallet implements WalletInterface {
     const signedTokenMintTx = await tokenMintTx.sign(supplyKey);
     console.log("NFT signed!")
 
-    const txResult = await tokenMintTx.executeWithSigner(signer);
+    const txResult = await signedTokenMintTx.executeWithSigner(signer);
     const nftMintRx = await txResult.getReceipt(hederaClient);
     const supply = nftMintRx.totalSupply;
-    console.log(`- Hbargotchi NFT minted. New total supply is ${supply}`);
+    console.log(`- Hbargotchi NFT minted with TokenId: ${tokenId}. New total supply is ${supply}`);
+
+      // Log the NFT minting event to the Hedera Consensus Service
+    const message = `NFT minted with tokenId ${tokenId} and metadata ${metadata}`;
+    const interactionHash = await this.sendMessage(topicId, message);
+    console.log(`- Interaction logged to HCS. Message hash: ${interactionHash}`);
 
     return txResult ? txResult.transactionId : null;
+  }
+
+  async fetchTokenInfo(tokenId: string) {
+    const tokenInfoQuery = new TokenInfoQuery()
+      .setTokenId(TokenId.fromString(tokenId));
+  
+    const signer = this.getSigner();
+    const txResult = await tokenInfoQuery.executeWithSigner(signer);
+  
+    if (txResult?.metadata) {
+      const decodedMetadata = new TextDecoder().decode(txResult.metadata);
+      console.log(decodedMetadata)
+      return decodedMetadata;
+    } else {
+      console.log("No metadata available for this token.");
+      return null;
+    }
   }
   
   // Purpose: build contract execute transaction and send to wallet for signing and execution

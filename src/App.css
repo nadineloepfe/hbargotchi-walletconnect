@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'Aperçu';
+  src: url('../public/fonts/Apercu Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
 *,
 *::before,
 *::after {
@@ -12,6 +20,7 @@ html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden; /* Prevent horizontal scroll */
+  font-family: 'Aperçu', sans-serif;
 }
 
 h1, h2, h3, h4, p {

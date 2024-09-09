@@ -1,5 +1,5 @@
-import { ContractId, AccountId, TokenType, TopicId, PrivateKey, TokenCreateTransaction, TokenMintTransaction } from "@hashgraph/sdk";
-import { TokenId } from "@hashgraph/sdk/lib/transaction/TransactionRecord";
+import { ContractId, AccountId, TokenId, TokenType, TopicId, PrivateKey, TokenCreateTransaction, TokenMintTransaction, TokenInfoQuery } from "@hashgraph/sdk";
+// import { TokenId } from "@hashgraph/sdk/lib/transaction/TransactionRecord";
 import { ethers } from "ethers";
 import { useContext, useEffect } from "react";
 import { appConfig } from "../../../config";
@@ -192,6 +192,30 @@ class MetaMaskWallet implements WalletInterface {
     }
   }
 
+  async mintFoodTokens(tokenId: TokenId | string, amount: number) {
+    const provider = getProvider();
+    const signer = await provider.getSigner();
+  
+    const contractId = ContractId.fromString(tokenId.toString());
+    const parameters = new ContractFunctionParameterBuilder()
+      .addParam({
+        type: "uint64",  
+        name: "amount",
+        value: amount
+      });
+  
+    const txHash = await this.executeContractFunction(
+      contractId,
+      "mint", 
+      parameters,
+      appConfig.constants.METAMASK_GAS_LIMIT_TRANSFER_FT
+    );
+  
+    console.log(`Minted ${amount} $FOOD tokens. Transaction hash: ${txHash}`);
+    return txHash;
+  }
+
+
   async mintNFT(tokenId: TokenId | string, metadata: string, supplyKey: PrivateKey) {
     const provider = getProvider();
     const addresses = await provider.listAccounts();
@@ -244,7 +268,6 @@ class MetaMaskWallet implements WalletInterface {
       value: message  
     });  // Add message as a parameter to the contract function
   
-    // Execute the contract function via MetaMask
     const hash = await this.executeContractFunction(
       contractId,               
       'submitMessage',           
@@ -255,7 +278,30 @@ class MetaMaskWallet implements WalletInterface {
     return hash;
   }
 
-
+  async fetchTokenInfo(tokenId: string) {
+    // Prepare the Contract ID from the Token ID
+    const contractId = ContractId.fromString(tokenId.toString());
+    const parameters = new ContractFunctionParameterBuilder();
+  
+    const txHash = await this.executeContractFunction(
+      contractId,               
+      "tokenInfo",            
+      parameters,               
+      appConfig.constants.METAMASK_GAS_LIMIT_SEND_MESSAGE
+    );
+  
+    console.log(`Transaction hash: ${txHash}`);
+  
+    // Assuming the returned metadata is encoded, decode it if available
+    if (txHash?.metadata) {
+      const decodedMetadata = new TextDecoder().decode(txHash.metadata);
+      return decodedMetadata;
+    } else {
+      console.log("No metadata available for this token.");
+      return null;
+    }
+  }
+  
   // Purpose: build contract execute transaction and send to hashconnect for signing and execution
   // Returns: Promise<TransactionId | null>
   async executeContractFunction(contractId: ContractId, functionName: string, functionParameters: ContractFunctionParameterBuilder, gasLimit: number) {

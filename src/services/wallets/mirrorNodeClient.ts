@@ -81,6 +81,24 @@ export class MirrorNodeClient {
     return nftInfos;
   }
 
+  async getTopicMessages(topicId: string) {
+    const messagesResponse = await fetch(`${this.url}/api/v1/topics/${topicId}/messages`, { method: "GET" });
+    const messagesJson = await messagesResponse.json();
+    
+    const messages = messagesJson.messages.map((message: any) => {
+      const decodedMessage = new TextDecoder("utf-8").decode(
+        Uint8Array.from(atob(message.message), (c) => c.charCodeAt(0))
+      );
+  
+      return {
+        content: decodedMessage,
+        timestamp: message.consensus_timestamp,
+      };
+    });
+  
+    return messages;
+  }
+
   // Purpose: get token balances for an account with token info in order to display token balance, token type, decimals, etc.
   // Returns: an array of MirrorNodeAccountTokenBalanceWithInfo
   async getAccountTokenBalancesWithTokenInfo(accountId: AccountId): Promise<MirrorNodeAccountTokenBalanceWithInfo[]> {

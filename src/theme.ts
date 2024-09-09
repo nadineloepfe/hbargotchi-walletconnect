@@ -2,7 +2,7 @@ import { createTheme } from "@mui/material";
 
 export const theme = createTheme({
   typography: {
-    fontFamily: '"TamaConnectType", "Helvetica Neue", Sans-Serif',
+    fontFamily: '"TamaConnectType", "Aperçu", Sans-Serif',
     h1: {
       fontFamily: '"TamaConnectType", sans-serif',
       fontWeight: 'normal', 
@@ -12,7 +12,7 @@ export const theme = createTheme({
       fontWeight: 'normal',
     },
     body1: {
-      fontFamily: '"Styrene A Web", sans-serif',
+      fontFamily: '"Aperçu", sans-serif',
       fontWeight: 'normal',
     }
   },
@@ -20,7 +20,7 @@ export const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          fontFamily: '"Styrene A Web", sans-serif', 
+          fontFamily: '"Aperçu", sans-serif', 
           fontWeight: 'bold', 
         },
       },

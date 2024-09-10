@@ -3,33 +3,20 @@ import { Stack } from "@mui/system";
 import { useState } from "react";
 import { useWalletInterface } from "../services/wallets/useWalletInterface";
 import { AccountId, TokenId, PrivateKey } from "@hashgraph/sdk";
-import "../App.css"; // Import the CSS file for shared styles
+import { useTokenOperations } from "../hooks/useTokenOperations"; 
+import "../App.css"; 
 
 export default function FeedHbargotchi() {
   const { walletInterface, accountId } = useWalletInterface();
-  const [foodAmount, setFoodAmount] = useState<number | "">(""); // Handle empty state correctly
+  const [foodAmount, setFoodAmount] = useState<number | "">(""); 
 
-  // const foodTokenId = TokenId.fromString(process.env.REACT_APP_FOOD_TOKEN_ID!);
-  // const treasuryAccountId = AccountId.fromString(process.env.REACT_APP_TREASURY_ID!);
-  // const foodTokenSupplyKey = PrivateKey.fromString(process.env.REACT_APP_FOOD_TOKEN_SUPPLY_KEY!);
   const foodTokenId = TokenId.fromString("0.0.4841066");
   const treasuryAccountId = AccountId.fromString("0.0.4668437");
   const foodTokenSupplyKey = PrivateKey.fromString("302e020100300506032b657004220420c99c793170e81d0910cb74bc4f4ed8182454e10edc86a4f2d38d970c8e5f7db8");
 
-  // Feed the pet (send 20 $FOOD tokens to the treasury)
-  const feedHbargotchi = async () => {
-    if (!walletInterface || !accountId) return;
 
-    const txId = await walletInterface.transferFungibleToken(
-      treasuryAccountId,
-      foodTokenId,
-      20 // Send 20 $FOOD tokens to the treasury to keep the Hbargotchi alive
-    );
+  const { transferTokens, mintTokens, loading } = useTokenOperations(walletInterface, accountId);
 
-    console.log(`Sent 20 $FOOD tokens to the treasury. Transaction ID: ${txId}`);
-  };
-
-  // Handle user input for buying $FOOD tokens
   const handleFoodAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const amount = parseInt(e.target.value, 10);
     if (!isNaN(amount) && amount > 0) {
@@ -39,35 +26,13 @@ export default function FeedHbargotchi() {
     }
   };
 
-  // Mint food tokens function - to be replaced with actual token swap logic later
-  const mintFoodTokens = async () => {
-    if (!walletInterface || !accountId || foodAmount === "") return;
-    if (foodAmount <= 0) {
-      console.log("Please enter a valid amount of $FOOD tokens.");
-      return;
-    }
-
-    try {
-      // Mint the food tokens directly to the user's account
-      const txId = await walletInterface.mintFoodTokens(
-        foodTokenId, 
-        foodAmount,
-        foodTokenSupplyKey
-      );
-
-      console.log(`Minted ${foodAmount} $FOOD tokens. Transaction ID: ${txId}`);
-    } catch (error) {
-      console.error("Error minting food tokens: ", error);
-    }
-  };
-
   return (
     <Stack alignItems="center" spacing={4}>
       <Typography variant="h4" color="white" align="center">
         Feed
       </Typography>
-      {walletInterface !== null && (
-        <div className="card-wrapper">
+      {walletInterface && (
+        <Stack spacing={4} className="card-wrapper">
           {/* Card for feeding Hbargotchi */}
           <Card className="card">
             <CardContent>
@@ -77,12 +42,12 @@ export default function FeedHbargotchi() {
               <Typography variant="body1" color="white" align="center">
                 Send 20 $FOOD tokens to keep your Hbargotchi alive for 3 more days!
               </Typography>
-              <br></br>
-              <Stack alignItems="center">
+              <Stack alignItems="center" mt={2}>
                 <Button
                   variant="contained"
-                  onClick={feedHbargotchi}
+                  onClick={() => transferTokens(treasuryAccountId, foodTokenId, 20)}
                   className="gradientButton"
+                  disabled={loading} // Disable button while loading
                 >
                   Feed
                 </Button>
@@ -96,8 +61,7 @@ export default function FeedHbargotchi() {
               <Typography variant="h5" gutterBottom align="center">
                 Buy $FOOD Tokens
               </Typography>
-              <br></br>
-              <Stack alignItems="center">
+              <Stack alignItems="center" spacing={2} mt={2}>
                 <TextField
                   type="number"
                   label="Amount of $FOOD Tokens"
@@ -105,11 +69,11 @@ export default function FeedHbargotchi() {
                   onChange={handleFoodAmountChange}
                   className="text-field"
                 />
-                <br></br>
                 <Button
                   variant="contained"
-                  onClick={mintFoodTokens}
+                  onClick={() => mintTokens(foodTokenId, Number(foodAmount), foodTokenSupplyKey)}
                   className="gradientButton"
+                  disabled={loading} // Disable button while loading
                 >
                   Buy
                 </Button>
@@ -117,9 +81,9 @@ export default function FeedHbargotchi() {
             </CardContent>
           </Card>
 
-          <Stack direction='row' gap={2} alignItems='center' justifyContent='center'>
+          <Stack direction="row" gap={2} alignItems="center" justifyContent="center" mt={2}>
             <Button
-              variant='contained'
+              variant="contained"
               onClick={async () => {
                 await walletInterface.associateToken(foodTokenId);
               }}
@@ -128,7 +92,7 @@ export default function FeedHbargotchi() {
               Associate Token
             </Button>
           </Stack>
-        </div>
+        </Stack>
       )}
     </Stack>
   );

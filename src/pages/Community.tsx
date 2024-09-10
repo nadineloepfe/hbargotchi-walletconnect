@@ -1,11 +1,17 @@
 import { Box, Typography, CircularProgress, Stack } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { MirrorNodeClient } from "../services/wallets/mirrorNodeClient";
 import { appConfig } from "../config";
 
+interface Message {
+  content: string;
+  timestamp: string;
+}
+
 export default function Community() {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null); 
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -17,6 +23,7 @@ export default function Community() {
         setMessages(topicMessages.reverse()); // Newest first
       } catch (error) {
         console.error("Error fetching topic messages:", error);
+        setError("Failed to load messages. Please try again later."); // Set error message
       } finally {
         setLoading(false);
       }
@@ -24,6 +31,13 @@ export default function Community() {
 
     fetchMessages();
   }, []);
+
+  const formattedMessages = useMemo(() => {
+    return messages.map((message) => ({
+      ...message,
+      formattedDate: new Date(Number(message.timestamp) * 1000).toLocaleString(),
+    }));
+  }, [messages]);
 
   return (
     <Stack alignItems="center" spacing={4}>
@@ -33,10 +47,12 @@ export default function Community() {
 
       {loading ? (
         <CircularProgress />
+      ) : error ? (
+        <Typography color="error">{error}</Typography> // Display error message if fetch fails
       ) : (
         <>
-          {messages.length > 0 ? (
-            messages.map((message, index) => (
+          {formattedMessages.length > 0 ? (
+            formattedMessages.map((message, index) => (
               <Box
                 key={index}
                 sx={{
@@ -53,7 +69,7 @@ export default function Community() {
                   {message.content}
                 </Typography>
                 <Typography variant="body1" color="textSecondary">
-                  {new Date(Number(message.timestamp) * 1000).toLocaleString()}
+                  {message.formattedDate}
                 </Typography>
               </Box>
             ))

@@ -36,7 +36,7 @@ export default function View() {
         const metadataKey = PrivateKey.fromString("");
 
         if (selectedTokenId && selectedSerialNumber) {
-          console.log("updating metadata now")
+          console.log("Updating metadata now")
           await updateNftMetadata(selectedTokenId, selectedSerialNumber, newMetadataUri, metadataKey);
           toast.success(`NFT metadata updated`);
         }

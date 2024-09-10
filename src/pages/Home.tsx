@@ -18,15 +18,11 @@ export default function Home() {
   const [amount, setAmount] = useState(1);
 
   return (
-    <Stack alignItems="center" spacing={4}>
+    <Stack alignItems="center" spacing={7}>
       <Hero />
-      <br></br>
       <Intro />
-      <br></br>
       <Features />
-      <br></br>
       <FAQ />
-      <br></br>
       <Links />
       {walletInterface !== null && (
         <>

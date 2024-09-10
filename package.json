@@ -9,6 +9,7 @@
     "@hashgraph/sdk": "^2.46.0",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.13.0",
+    "@pinata/sdk": "^2.1.0",
     "@types/node": "^16.18.31",
     "@walletconnect/modal": "^2.6.2",
     "classnames": "^2.5.1",
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.3.4",
-    "@types/react-dom": "^18.3.0"
+    "@types/react-dom": "^18.3.0",
+    "dotenv-webpack": "^8.1.0"
   }
 }

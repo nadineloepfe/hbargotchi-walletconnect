@@ -60,7 +60,6 @@ export default function FAQ() {
           </AccordionDetails>
         </Accordion>
 
-        {/* Add more questions similarly */}
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel5a-content" id="panel5a-header">
             <Typography variant="h6" color="white">5. What is the role of the wallet in Hbargotchi?</Typography>

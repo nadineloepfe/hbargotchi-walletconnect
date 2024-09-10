@@ -9,9 +9,12 @@ export default function FeedHbargotchi() {
   const { walletInterface, accountId } = useWalletInterface();
   const [foodAmount, setFoodAmount] = useState<number | "">(""); // Handle empty state correctly
 
+  // const foodTokenId = TokenId.fromString(process.env.REACT_APP_FOOD_TOKEN_ID!);
+  // const treasuryAccountId = AccountId.fromString(process.env.REACT_APP_TREASURY_ID!);
+  // const foodTokenSupplyKey = PrivateKey.fromString(process.env.REACT_APP_FOOD_TOKEN_SUPPLY_KEY!);
   const foodTokenId = TokenId.fromString("0.0.4841066");
-  const foodTokenSupplyKey = PrivateKey.fromString("302e020100300506032b657004220420c99c793170e81d0910cb74bc4f4ed8182454e10edc86a4f2d38d970c8e5f7db8");
   const treasuryAccountId = AccountId.fromString("0.0.4668437");
+  const foodTokenSupplyKey = PrivateKey.fromString("302e020100300506032b657004220420c99c793170e81d0910cb74bc4f4ed8182454e10edc86a4f2d38d970c8e5f7db8");
 
   // Feed the pet (send 20 $FOOD tokens to the treasury)
   const feedHbargotchi = async () => {

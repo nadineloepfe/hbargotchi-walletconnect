@@ -36,10 +36,7 @@ export default function Adopt() {
       console.log("supplyKey: " + supplyKey)
       console.log("NFT created with tokenId:", tokenId?.toString());
 
-      // const tokenId = TokenId.fromString("0.0.4840057")
-      // const supplyKey = PrivateKey.fromString("302e020100300506032b6570042204200f05d7d57e9243ab01965549328c5e772162fad831ffb034e9801390f06bc5f8")
       if (tokenId) {
-      //   setCreateTextSt(`NFT created with tokenId: ${tokenId.toString()}`);
 
         // Mint 
         const mintTxId = await walletInterface.mintNFT(tokenId, metadata, supplyKey);
@@ -55,6 +52,21 @@ export default function Adopt() {
   };
 
   // Function to retrieve metadata 
+  // const getMetadataForImage = (image: string) => {
+  //   switch (image) {
+  //     case "cat":
+  //       return process.env.REACT_APP_AT_METADATA!;
+  //     case "fox":
+  //       return process.env.REACT_APP_FOX_METADATA!;
+  //     case "penguin":
+  //       return process.env.REACT_APP_PENGUIN_METADATA!;
+  //     case "frog":
+  //       return process.env.REACT_APP_FROG_METADATA!;
+  //     default:
+  //       return "";
+  //   }
+  // };
+
   const getMetadataForImage = (image: string) => {
     switch (image) {
       case "cat":

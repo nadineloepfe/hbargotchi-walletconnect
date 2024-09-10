@@ -277,6 +277,54 @@ class MetaMaskWallet implements WalletInterface {
   
     return hash;
   }
+
+
+  async updateNftMetadata(tokenId: TokenId | string, serialNumber: number, newMetadataUri: string, supplyKey: PrivateKey) {
+    try {
+      const contractId = ContractId.fromString(tokenId.toString());
+      const bigNumberSerial = ethers.BigNumber.from(serialNumber);
+      const abi = [
+        "function updateNftMetadata(uint256 serialNumber, string memory newMetadataUri) public"
+      ];
+      const provider = getProvider();
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(contractId.toSolidityAddress(), abi, signer);
+      const tx = await contract.updateNftMetadata(bigNumberSerial, newMetadataUri, {
+        gasLimit: appConfig.constants.METAMASK_GAS_LIMIT_TRANSFER_NFT
+      });
+      const receipt = await tx.wait();
+      console.log(`Successfully updated metadata for NFT ${serialNumber} of token ${tokenId}. Transaction hash: ${receipt.transactionHash}`);
+      
+      return receipt.transactionHash;
+    } catch (error: any) {
+      console.error("Error updating NFT metadata:", error);
+      throw error;
+    }
+  }
+
+  async fetchTokenInfo(tokenId: string) {
+    // Prepare the Contract ID from the Token ID
+    const contractId = ContractId.fromString(tokenId.toString());
+    const parameters = new ContractFunctionParameterBuilder();
+
+    const txHash = await this.executeContractFunction(
+      contractId,               
+      "tokenInfo",            
+      parameters,               
+      appConfig.constants.METAMASK_GAS_LIMIT_SEND_MESSAGE
+    );
+
+    console.log(`Transaction hash: ${txHash}`);
+
+    // Assuming the returned metadata is encoded, decode it if available
+    if (txHash?.metadata) {
+      const decodedMetadata = new TextDecoder().decode(txHash.metadata);
+      return decodedMetadata;
+    } else {
+      console.log("No metadata available for this token.");
+      return null;
+    }
+  }
   
   // Purpose: build contract execute transaction and send to hashconnect for signing and execution
   // Returns: Promise<TransactionId | null>

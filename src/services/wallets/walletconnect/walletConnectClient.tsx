@@ -1,7 +1,7 @@
 import { WalletConnectContext } from "../../../contexts/WalletConnectContext";
 import { useCallback, useContext, useEffect } from 'react';
 import { WalletInterface } from "../walletInterface";
-import { AccountId, ContractExecuteTransaction, TopicMessageSubmitTransaction, ContractId, TopicId, LedgerId, PrivateKey, TokenType, TokenAssociateTransaction, TokenId, Transaction, TransactionId, TransferTransaction, TokenCreateTransaction, TokenMintTransaction, Client } from "@hashgraph/sdk";
+import { AccountId, ContractExecuteTransaction, TokenUpdateNftsTransaction, TokenInfoQuery, TopicMessageSubmitTransaction, ContractId, TopicId, LedgerId, PrivateKey, TokenType, TokenAssociateTransaction, TokenId, Transaction, TransactionId, TransferTransaction, TokenCreateTransaction, TokenMintTransaction, Client } from "@hashgraph/sdk";
 import { ContractFunctionParameterBuilder } from "../contractFunctionParameterBuilder";
 import { appConfig } from "../../../config";
 import { SignClientTypes } from "@walletconnect/types";
@@ -210,6 +210,55 @@ class WalletConnectWallet implements WalletInterface {
     console.log(`- Interaction logged to HCS. Message hash: ${interactionHash}`);
 
     return txResult ? txResult.transactionId : null;
+  }
+
+  async updateNftMetadata(tokenId: TokenId | string, serialNumber: number, newMetadataUri: string, supplyKey: PrivateKey) {
+    try {
+      const signer = this.getSigner();
+      const formattedTokenId = typeof tokenId === 'string' ? TokenId.fromString(tokenId) : tokenId;
+  
+      const updateTransaction = new TokenUpdateNftsTransaction()
+        .setTokenId(formattedTokenId)
+        .setSerialNumbers([serialNumber])
+        .setMetadata(new TextEncoder().encode(newMetadataUri))
+        .freezeWith(hederaClient);
+      
+      console.log("supplyKey retrieved:", signer);
+      const signedUpdateTx = await updateTransaction.sign(supplyKey);
+  
+      // Execute the transaction with the signer
+      const txResult = await signedUpdateTx.executeWithSigner(signer);
+      console.log("Transaction executed:", txResult);
+  
+      console.log(`Successfully updated metadata for NFT ${serialNumber} of token ${tokenId}`);
+      return txResult ? txResult.transactionId : null;
+  
+    } catch (error) {
+      if (error instanceof Error) {
+        // If the error is an instance of the Error object, handle it
+        console.error("Error updating NFT metadata:", error.message);
+        console.error("Error Stack:", error.stack);
+      }
+  
+      throw error; // Re-throw the error to handle it elsewhere if needed
+    }
+  }
+  
+  async fetchTokenInfo(tokenId: string) {
+    const tokenInfoQuery = new TokenInfoQuery()
+      .setTokenId(TokenId.fromString(tokenId));
+
+    const signer = this.getSigner();
+    const txResult = await tokenInfoQuery.executeWithSigner(signer);
+
+    if (txResult?.metadata) {
+      const decodedMetadata = new TextDecoder().decode(txResult.metadata);
+      console.log(decodedMetadata)
+      return decodedMetadata;
+    } else {
+      console.log("No metadata available for this token.");
+      return null;
+    }
   }
   
   // Purpose: build contract execute transaction and send to wallet for signing and execution

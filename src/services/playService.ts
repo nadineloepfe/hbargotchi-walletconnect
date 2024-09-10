@@ -1,20 +1,22 @@
-export function updatePlayScore(metadata: any) {
-    const newMetadata = { ...metadata };
-  
-    // Update Playscore
-    newMetadata.properties.playscore = (newMetadata.properties.playscore || 0) + 1;
-  
-    // Update Happiness based on Playscore
-    if (newMetadata.properties.playscore > 7) {
-      newMetadata.properties.happiness = "blissful";
-    } else if (newMetadata.properties.playscore >= 5) {
-      newMetadata.properties.happiness = "happy";
-    } else if (newMetadata.properties.playscore >= 3) {
-      newMetadata.properties.happiness = "content";
-    } else if (newMetadata.properties.playscore < 1) {
-      newMetadata.properties.happiness = "sad";
-    }
-  
-    return newMetadata;
+export const updatePlayScoreAndHappiness = (currentMetadata: any) => {
+  const updatedMetadata = { ...currentMetadata }; 
+
+  // Increase Playscore by 1
+  updatedMetadata.properties.playscore += 1;
+
+  const playscore = updatedMetadata.properties.playscore;
+
+  if (playscore > 7) {
+    updatedMetadata.properties.happiness = "Blissful";
+  } else if (playscore >= 5) {
+    updatedMetadata.properties.happiness = "Happy";
+  } else if (playscore >= 3) {
+    updatedMetadata.properties.happiness = "Content";
+  } else if (playscore == 0) {
+    updatedMetadata.properties.happiness = "Neutral";
+  } else if (playscore < 1) {
+    updatedMetadata.properties.happiness = "Sad";
   }
-  
+
+  return updatedMetadata;
+};

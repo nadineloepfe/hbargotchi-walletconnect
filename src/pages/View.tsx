@@ -1,41 +1,43 @@
 import { useEffect, useState } from "react";
 import { Typography, Box, Stack, Button } from "@mui/material";
-import NftDropdown from "../components/NftDropdown"; // Assuming you have this component for NFT selection
-import SerialNumberDropdown from "../components/SerialNumberDropdown"; // Assuming a dropdown for serial numbers
+import NftDropdown from "../components/NftDropdown"; 
+import SerialNumberDropdown from "../components/SerialNumberDropdown"; 
 import { fetchNftMetadata, fetchHbargotchiNfts } from "../services/tokenService"; 
-import { updatePlayScore } from "../services/playService"; // This is the logic to update metadata
-import { useWalletInterface } from "../services/wallets/useWalletInterface"; // Assuming this gets accountId or wallet info
+import { updatePlayScoreAndHappiness } from "../services/playService"; 
+import { uploadJsonToPinata } from "../services/ipfsService"; 
+import { useWalletInterface } from "../services/wallets/useWalletInterface";
+import { useNavigate } from "react-router-dom";
+import { TokenId, PrivateKey } from "@hashgraph/sdk";
+import { SupportOutlined } from "@mui/icons-material";
 
 export default function View() {
-  const { accountId } = useWalletInterface(); // Get accountId
-  const [nfts, setNfts] = useState<any[]>([]); // Store NFTs fetched from an API
-  const [selectedTokenId, setSelectedTokenId] = useState<string>(''); // Store selected token ID
-  const [selectedSerialNumber, setSelectedSerialNumber] = useState<number | null>(null); // Store selected serial number
-  const [metadata, setMetadata] = useState<any>(null); // Store fetched metadata
+  const { accountId, walletInterface } = useWalletInterface(); 
+  const [nfts, setNfts] = useState<any[]>([]);
+  const [selectedTokenId, setSelectedTokenId] = useState<string>('');
+  const [selectedSerialNumber, setSelectedSerialNumber] = useState<number | null>(null);
+  const [metadata, setMetadata] = useState<any>(null);
+  const navigate = useNavigate();
 
-  // Fetch NFTs when the component mounts
   useEffect(() => {
     const fetchNfts = async () => {
-      if (accountId) { // Ensure accountId is available
+      if (accountId) {
         try {
-          const fetchedNfts = await fetchHbargotchiNfts(accountId); // Fetching NFTs for this accountId
+          const fetchedNfts = await fetchHbargotchiNfts(accountId);
           setNfts(fetchedNfts);
         } catch (error) {
           console.error("Error fetching NFTs:", error);
         }
       }
     };
-
     fetchNfts();
-  }, [accountId]); // Run when accountId changes
+  }, [accountId]);
 
-  // Fetch metadata when a token ID and serial number are selected
   useEffect(() => {
     const fetchMetadata = async () => {
       if (selectedTokenId && selectedSerialNumber) {
         try {
           const jsonMetadata = await fetchNftMetadata(selectedTokenId, selectedSerialNumber);
-          console.log("Fetched Metadata:", jsonMetadata); // Log the fetched metadata
+          console.log("Fetched Metadata:", jsonMetadata);
           setMetadata(jsonMetadata);
         } catch (error) {
           console.error("Error fetching metadata:", error);
@@ -46,54 +48,61 @@ export default function View() {
     fetchMetadata();
   }, [selectedTokenId, selectedSerialNumber]);
 
-  // Play button handler - logs the updated metadata
-  const handlePlay = () => {
+  const handlePlay = async () => {
+    if (!accountId) {
+      console.error("Error: No accountId found");
+      return;
+    }
+
     if (metadata) {
-      const updatedMetadata = updatePlayScore(metadata); // Apply play logic
-      console.log("Updated Metadata:", updatedMetadata); // Log the updated metadata
+      const updatedMetadata = updatePlayScoreAndHappiness(metadata);
+
+      try {
+        // Upload updated metadata to Pinata and get the IPFS hash
+        const ipfsHash = await uploadJsonToPinata(updatedMetadata);
+        console.log(`New metadata file uploaded to IPFS: ${ipfsHash}`);
+
+        // Construct the new metadata URI using the IPFS hash
+        const newMetadataUri = `ipfs://${ipfsHash}`;
+
+        if (selectedTokenId && selectedSerialNumber) {
+          const tokenId = selectedTokenId; 
+          const serialNumber = selectedSerialNumber; 
+
+          const supplyKey = PrivateKey.generate();  // -> to be replaced
+          
+          const transactionId = await walletInterface.updateNftMetadata(tokenId, serialNumber, newMetadataUri, supplyKey);
+          console.log(`NFT metadata updated. Transaction ID: ${transactionId}`);
+        }
+      } catch (error) {
+        console.error("Error uploading metadata to Pinata or updating NFT metadata:", error);
+      }
     } else {
       console.log("No metadata available to update.");
     }
   };
 
-  // Feed button handler - just logs a message for now
   const handleFeed = () => {
-    console.log("Feed action triggered"); // Log a message for now
+    navigate("/feed");
   };
 
   return (
     <Stack alignItems="center" spacing={4}>
-      <Typography variant="h4" color="white">
-        View
-      </Typography>
+      <Typography variant="h4" color="white">View</Typography>
 
-      {/* Dropdown for selecting NFTs */}
-      <NftDropdown
-        nfts={nfts} // Dynamically pass fetched NFTs
-        selectedTokenId={selectedTokenId}
-        onSelect={setSelectedTokenId}
-      />
+      <NftDropdown nfts={nfts} selectedTokenId={selectedTokenId} onSelect={setSelectedTokenId} />
 
-      {/* Dropdown for selecting Serial Number, only if a token is selected and serial is NOT 1 */}
       {selectedTokenId && selectedSerialNumber !== 1 && (
         <SerialNumberDropdown
-          nfts={nfts} // Pass the NFTs related to the selected token
+          nfts={nfts}
           selectedTokenId={selectedTokenId}
           selectedSerialNumber={selectedSerialNumber ?? ""}
           onSelect={setSelectedSerialNumber}
         />
       )}
 
-      {/* Display metadata if available */}
       {metadata && (
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          width="100%"
-          sx={{ marginTop: '20px' }}
-        >
-          {/* Image Section on the left */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" width="100%" sx={{ marginTop: '20px' }}>
           {metadata.files && metadata.files.length > 0 && (
             <Box flex={1} display="flex" justifyContent="center" alignItems="center" sx={{ marginRight: '20px' }}>
               <img
@@ -104,47 +113,20 @@ export default function View() {
             </Box>
           )}
 
-          {/* Properties Section on the right */}
           <Box flex={1} display="flex" flexDirection="column" justifyContent="center">
-            <Typography variant="h3" color="white" gutterBottom>
-              {metadata.name}
-            </Typography>
-            <Typography variant="h6" color="white">
-              Rarity: {metadata.properties.rarity}
-            </Typography>
-            <Typography variant="h6" color="white">
-              Character: {metadata.properties.character}
-            </Typography>
-            <Typography variant="h6" color="white">
-              Happiness: {metadata.properties.happiness}
-            </Typography>
-            <Typography variant="h6" color="white">
-              Playscore: {metadata.properties.playscore}
-            </Typography>
+            <Typography variant="h4" color="primary" gutterBottom>{metadata.name}</Typography>
+            <Typography variant="h6" color="white">Rarity: {metadata.properties.rarity}</Typography>
+            <Typography variant="h6" color="white">Character: {metadata.properties.character}</Typography>
+            <Typography variant="h6" color="white">Happiness: {metadata.properties.happiness}</Typography>
+            <Typography variant="h6" color="white">Playscore: {metadata.properties.playscore}</Typography>
           </Box>
         </Box>
       )}
 
-      {/* Always show Play and Feed buttons */}
       <Stack direction="row" spacing={2} mt={4}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handlePlay} // Call handlePlay on click
-        >
-          Play
-        </Button>
-
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleFeed} // Call handleFeed on click
-        >
-          Feed
-        </Button>
+        <Button variant="contained" color="primary" onClick={handlePlay}>Play</Button>
+        <Button variant="contained" color="secondary" onClick={handleFeed}>Feed</Button>
       </Stack>
     </Stack>
   );
 }
-
-

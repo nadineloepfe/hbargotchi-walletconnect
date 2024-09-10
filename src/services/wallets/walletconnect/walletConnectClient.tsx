@@ -196,7 +196,6 @@ class WalletConnectWallet implements WalletInterface {
       .freezeWith(hederaClient);
 
     console.log("Signing NFT with SupplyKey....")
-    console.log("supplyKey is: " + supplyKey)
     const signedTokenMintTx = await tokenMintTx.sign(supplyKey);
     console.log("NFT signed!")
 
@@ -214,7 +213,7 @@ class WalletConnectWallet implements WalletInterface {
   }
   
 
-  async updateNftMetadata(tokenId: TokenId | string, serialNumber: number, newMetadataUri: string, supplyKey: PrivateKey) {
+  async updateNftMetadata(tokenId: TokenId | string, serialNumber: number, newMetadataUri: string, metadataKey: PrivateKey) {
     try {
       const signer = this.getSigner();
       const formattedTokenId = typeof tokenId === 'string' ? TokenId.fromString(tokenId) : tokenId;
@@ -225,8 +224,8 @@ class WalletConnectWallet implements WalletInterface {
         .setMetadata(new TextEncoder().encode(newMetadataUri))
         .freezeWith(hederaClient);
       
-      console.log("supplyKey retrieved:", signer);
-      const signedUpdateTx = await updateTransaction.sign(supplyKey);
+      console.log("signing transaction with Metadata Key");
+      const signedUpdateTx = await updateTransaction.sign(metadataKey);
   
       // Execute the transaction with the signer
       const txResult = await signedUpdateTx.executeWithSigner(signer);

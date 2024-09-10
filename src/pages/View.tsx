@@ -69,9 +69,9 @@ export default function View() {
           const tokenId = selectedTokenId; 
           const serialNumber = selectedSerialNumber; 
 
-          const supplyKey = PrivateKey.generate();  // -> to be replaced
+          const metadataKey = PrivateKey.fromString("happyHardcoding")  // -> to be replaced
           
-          const transactionId = await walletInterface.updateNftMetadata(tokenId, serialNumber, newMetadataUri, supplyKey);
+          const transactionId = await walletInterface.updateNftMetadata(tokenId, serialNumber, newMetadataUri, metadataKey);
           console.log(`NFT metadata updated. Transaction ID: ${transactionId}`);
         }
       } catch (error) {

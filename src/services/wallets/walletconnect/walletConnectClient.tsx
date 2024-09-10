@@ -141,7 +141,7 @@ class WalletConnectWallet implements WalletInterface {
 
   async createNFT() {
     const supplyKey = PrivateKey.generate(); 
-    console.log("supplyKey is: " + supplyKey)
+    const metadataKey = PrivateKey.generate(); 
     const signer = this.getSigner();
     const tokenCreateTx = new TokenCreateTransaction()
       .setTokenName("Hbargotchi")
@@ -151,6 +151,7 @@ class WalletConnectWallet implements WalletInterface {
       .setAutoRenewAccountId(this.getAccountId())
       .setAutoRenewPeriod(7776000)
       .setSupplyKey(supplyKey.publicKey)
+      .setMetadataKey(metadataKey.publicKey)
       .setTransactionId(TransactionId.generate(this.getAccountId()));
 
       const txResult = await tokenCreateTx.executeWithSigner(signer);
@@ -163,7 +164,7 @@ class WalletConnectWallet implements WalletInterface {
       console.log(`- Interaction logged to HCS. Message hash: ${interactionHash}`);
 
       console.log("NFT created! Token Id" + tokenId)
-      console.log("SupplyKey:" + supplyKey)
+      console.log("MetadataKey:" + metadataKey)
       return { tokenId, supplyKey };
   }
 

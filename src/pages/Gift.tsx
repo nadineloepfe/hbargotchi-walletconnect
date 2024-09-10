@@ -9,7 +9,7 @@ import { appConfig } from "../config";
 import "../App.css";
 
 const UNSELECTED_SERIAL_NUMBER = -1;
-const foodTokenId = TokenId.fromString(process.env.FOOD_TOKEN_ID!);
+const foodTokenId = TokenId.fromString("0.0.4828893");
 
 export default function Gift() {
   const { walletInterface, accountId } = useWalletInterface();

@@ -211,6 +211,7 @@ class WalletConnectWallet implements WalletInterface {
 
     return txResult ? txResult.transactionId : null;
   }
+  
 
   async updateNftMetadata(tokenId: TokenId | string, serialNumber: number, newMetadataUri: string, supplyKey: PrivateKey) {
     try {

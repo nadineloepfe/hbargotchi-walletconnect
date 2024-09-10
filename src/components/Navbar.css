@@ -29,16 +29,6 @@
   }
 }
 
-.gradientButton {
-  background: linear-gradient(90deg, #6a11cb, #2575fc); 
-  color: white; 
-  font-family: 'Styrene A Web', sans-serif !important; 
-}
-
-.gradientButton:hover {
-  opacity: 0.9; 
-}
-
 .logo-title {
   font-family: 'Styrene A Web', sans-serif !important; 
 }

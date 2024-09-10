@@ -4,9 +4,8 @@ export default function Footer() {
   return (
     <Box component="footer" sx={{ background: 'black', color: 'grey', padding: 1, textAlign: 'center' }}>
       <Typography
-        variant="body2"
+        variant="body1"
         sx={{
-          fontFamily: 'Styrene A Web, sans-serif',  
           fontSize: '0.8rem',                      
           color: 'grey'                          
         }}

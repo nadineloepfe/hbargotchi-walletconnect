@@ -12,5 +12,4 @@ export interface WalletInterface {
   mintNFT: (tokenId: TokenId | string, metadata: string, supplyKey: PrivateKey)  => Promise<TransactionId | string | null>;
   sendMessage: (topicId: TopicId, message: string) => Promise<TransactionId | string | null>;
   mintFoodTokens: (tokenId: TokenId | string, amount: number, supplyKey: PrivateKey)  => Promise<TransactionId | string | null>;
-  fetchTokenInfo: (tokenId: string) => Promise<string | null>;
 }

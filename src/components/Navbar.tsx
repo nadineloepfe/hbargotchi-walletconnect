@@ -11,8 +11,8 @@ const pages = [
   { name: 'Adopt', path: '/adopt' },
   { name: 'View', path: '/view' },
   { name: 'Feed', path: '/feed' }, 
-  { name: 'Community', path: '/community' }, 
   { name: 'Gift', path: '/gift' },
+  { name: 'Community', path: '/community' }
   // { name: 'FAQ', path: '/faq' }
 ];
 

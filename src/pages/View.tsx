@@ -1,162 +1,150 @@
-import { Button, MenuItem, TextField, Typography } from "@mui/material";
-import { Stack } from "@mui/system";
 import { useEffect, useState } from "react";
-import { AccountId, TokenInfoQuery, Client, PrivateKey } from "@hashgraph/sdk";
-import { MirrorNodeClient, MirrorNodeNftInfo, MirrorNodeTokenInfo } from "../services/wallets/mirrorNodeClient"; // Added MirrorNodeTokenInfo
-import { useWalletInterface } from "../services/wallets/useWalletInterface";
-import { appConfig } from "../config";
+import { Typography, Box, Stack, Button } from "@mui/material";
+import NftDropdown from "../components/NftDropdown"; // Assuming you have this component for NFT selection
+import SerialNumberDropdown from "../components/SerialNumberDropdown"; // Assuming a dropdown for serial numbers
+import { fetchNftMetadata, fetchHbargotchiNfts } from "../services/tokenService"; 
+import { updatePlayScore } from "../services/playService"; // This is the logic to update metadata
+import { useWalletInterface } from "../services/wallets/useWalletInterface"; // Assuming this gets accountId or wallet info
 
 export default function View() {
-  const { accountId } = useWalletInterface();
-  const [availableNfts, setAvailableNfts] = useState<MirrorNodeNftInfo[]>([]);
-  const [hbargotchiNfts, setHbargotchiNfts] = useState<MirrorNodeNftInfo[]>([]); 
-  const [selectedTokenId, setSelectedTokenId] = useState<string>('');
-  const [metadataResponse, setMetadataResponse] = useState<string | null>(null);
-  const [showMetadata, setShowMetadata] = useState<boolean>(false);
-  const { walletInterface } = useWalletInterface();
+  const { accountId } = useWalletInterface(); // Get accountId
+  const [nfts, setNfts] = useState<any[]>([]); // Store NFTs fetched from an API
+  const [selectedTokenId, setSelectedTokenId] = useState<string>(''); // Store selected token ID
+  const [selectedSerialNumber, setSelectedSerialNumber] = useState<number | null>(null); // Store selected serial number
+  const [metadata, setMetadata] = useState<any>(null); // Store fetched metadata
 
+  // Fetch NFTs when the component mounts
   useEffect(() => {
-    if (!accountId) return;
-
-    const mirrorNodeClient = new MirrorNodeClient(appConfig.networks.testnet);
-
-    mirrorNodeClient.getNftInfo(AccountId.fromString(accountId))
-      .then((nftInfos) => {
-        const fetchHbargotchiTokens = async () => {
-          const hbargotchiNftsFiltered = [];
-          for (const nft of nftInfos) {
-            const tokenInfo: MirrorNodeTokenInfo = await mirrorNodeClient.getTokenInfo(nft.token_id);
-            if (tokenInfo.symbol === "HBG") { 
-              hbargotchiNftsFiltered.push(nft);
-            }
-          }
-          setHbargotchiNfts(hbargotchiNftsFiltered);
-        };
-
-        fetchHbargotchiTokens();
-      })
-      .catch(error => console.error("Error fetching NFTs:", error));
-  }, [accountId]);
-
-    // ----------------------------------------------
-  // NOTE: Mirror Node version 
-  // ----------------------------------------------
-  // const fetchMetadata = async () => {
-  //   if (!selectedTokenId) return;
-
-  //   const mirrorNodeClient = new MirrorNodeClient(appConfig.networks.testnet);
-
-  //   try {
-  //     const nftDetails = await mirrorNodeClient.getNftDetails(selectedTokenId);
-  //     const rawMetadata = JSON.stringify(nftDetails, null, 2); 
-  //     setMetadataResponse(rawMetadata);
-  //     setShowMetadata(true);
-  //   } catch (error) {
-  //     console.error("Error fetching NFT details:", error);
-  //   }
-  // };
-
-  // ----------------------------------------------
-  // NOTE: walletConnect version 
-  // ----------------------------------------------
-  const fetchMetadata = async () => {
-    if (!selectedTokenId || !walletInterface) {
-      console.error("No token selected or wallet interface is unavailable.");
-      return;
-    }
-  
-    try {
-      const metadata = await walletInterface.fetchTokenInfo(selectedTokenId);
-      
-      if (metadata) {
-        setMetadataResponse(metadata);
-        setShowMetadata(true);
-      } else {
-        console.error("No metadata available");
+    const fetchNfts = async () => {
+      if (accountId) { // Ensure accountId is available
+        try {
+          const fetchedNfts = await fetchHbargotchiNfts(accountId); // Fetching NFTs for this accountId
+          setNfts(fetchedNfts);
+        } catch (error) {
+          console.error("Error fetching NFTs:", error);
+        }
       }
-    } catch (error) {
-      console.error("Error fetching metadata:", error);
+    };
+
+    fetchNfts();
+  }, [accountId]); // Run when accountId changes
+
+  // Fetch metadata when a token ID and serial number are selected
+  useEffect(() => {
+    const fetchMetadata = async () => {
+      if (selectedTokenId && selectedSerialNumber) {
+        try {
+          const jsonMetadata = await fetchNftMetadata(selectedTokenId, selectedSerialNumber);
+          console.log("Fetched Metadata:", jsonMetadata); // Log the fetched metadata
+          setMetadata(jsonMetadata);
+        } catch (error) {
+          console.error("Error fetching metadata:", error);
+        }
+      }
+    };
+
+    fetchMetadata();
+  }, [selectedTokenId, selectedSerialNumber]);
+
+  // Play button handler - logs the updated metadata
+  const handlePlay = () => {
+    if (metadata) {
+      const updatedMetadata = updatePlayScore(metadata); // Apply play logic
+      console.log("Updated Metadata:", updatedMetadata); // Log the updated metadata
+    } else {
+      console.log("No metadata available to update.");
     }
   };
 
-  // ----------------------------------------------
-  // NOTE: Vanilla JS/hardcoded client version 
-  // ----------------------------------------------
-  // const fetchMetadata = async () => {
-  //   const operatorId = AccountId.fromString("")
-  //   const operatorKey = PrivateKey.fromString("");
-  //   const client = Client.forTestnet().setOperator(operatorId, operatorKey);
-  //   try {
-  //     // Create the query for token info
-  //     const tokenInfo = await new TokenInfoQuery().setTokenId(selectedTokenId).execute(client);
-  
-  //     // Log token info
-  //     console.log("Token Info:", tokenInfo);
-  
-  //     // If metadata exists, decode it
-  //     if (tokenInfo.metadata) {
-  //           console.log(tokenInfo.metadata)
-  //         } else {
-  //           console.error("No metadata available");
-  //         }
-  //       } catch (error) {
-  //         console.error("Error fetching metadata:", error);
-  //       }
-  //     };
+  // Feed button handler - just logs a message for now
+  const handleFeed = () => {
+    console.log("Feed action triggered"); // Log a message for now
+  };
 
   return (
     <Stack alignItems="center" spacing={4}>
       <Typography variant="h4" color="white">
-        View Hbargotchi
+        View
       </Typography>
 
-      <TextField
-        label='Select Hbargotchi NFT'
-        value={selectedTokenId}
-        select
-        onChange={(e) => setSelectedTokenId(e.target.value)}
-        sx={{ width: '250px', height: '50px' }}
-      >
-        <MenuItem value=''>Select a token</MenuItem>
-        {hbargotchiNfts.map((nft) => (
-          <MenuItem key={nft.token_id} value={nft.token_id}>
-            {nft.token_id} (Serial: {nft.serial_number})
-          </MenuItem>
-        ))}
-      </TextField>
+      {/* Dropdown for selecting NFTs */}
+      <NftDropdown
+        nfts={nfts} // Dynamically pass fetched NFTs
+        selectedTokenId={selectedTokenId}
+        onSelect={setSelectedTokenId}
+      />
 
-      {selectedTokenId && (
+      {/* Dropdown for selecting Serial Number, only if a token is selected and serial is NOT 1 */}
+      {selectedTokenId && selectedSerialNumber !== 1 && (
+        <SerialNumberDropdown
+          nfts={nfts} // Pass the NFTs related to the selected token
+          selectedTokenId={selectedTokenId}
+          selectedSerialNumber={selectedSerialNumber ?? ""}
+          onSelect={setSelectedSerialNumber}
+        />
+      )}
+
+      {/* Display metadata if available */}
+      {metadata && (
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          width="100%"
+          sx={{ marginTop: '20px' }}
+        >
+          {/* Image Section on the left */}
+          {metadata.files && metadata.files.length > 0 && (
+            <Box flex={1} display="flex" justifyContent="center" alignItems="center" sx={{ marginRight: '20px' }}>
+              <img
+                src={metadata.files[0].uri.replace("ipfs://", "https://ipfs.io/ipfs/")}
+                alt={metadata.name}
+                style={{ maxWidth: "100%", maxHeight: "400px", display: "block" }}
+              />
+            </Box>
+          )}
+
+          {/* Properties Section on the right */}
+          <Box flex={1} display="flex" flexDirection="column" justifyContent="center">
+            <Typography variant="h3" color="white" gutterBottom>
+              {metadata.name}
+            </Typography>
+            <Typography variant="h6" color="white">
+              Rarity: {metadata.properties.rarity}
+            </Typography>
+            <Typography variant="h6" color="white">
+              Character: {metadata.properties.character}
+            </Typography>
+            <Typography variant="h6" color="white">
+              Happiness: {metadata.properties.happiness}
+            </Typography>
+            <Typography variant="h6" color="white">
+              Playscore: {metadata.properties.playscore}
+            </Typography>
+          </Box>
+        </Box>
+      )}
+
+      {/* Always show Play and Feed buttons */}
+      <Stack direction="row" spacing={2} mt={4}>
         <Button
           variant="contained"
-          onClick={fetchMetadata}
-          sx={{ background: 'linear-gradient(90deg, #6a11cb, #2575fc)' }}
+          color="primary"
+          onClick={handlePlay} // Call handlePlay on click
         >
-          Fetch Metadata
+          Play
         </Button>
-      )}
 
-      {showMetadata && metadataResponse && (
-        <div>
-          <Typography variant="h5" color="white">NFT Metadata (Raw JSON):</Typography>
-          <TextField
-            multiline
-            fullWidth
-            rows={10}
-            value={metadataResponse}
-            InputProps={{
-              readOnly: true,
-            }}
-            sx={{
-              backgroundColor: "black", 
-              color: "white",            
-              borderRadius: "5px",
-              padding: "10px",
-              marginTop: "10px",
-              width: '100%'
-            }}
-          />
-        </div>
-      )}
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleFeed} // Call handleFeed on click
+        >
+          Feed
+        </Button>
+      </Stack>
     </Stack>
   );
 }
+
+

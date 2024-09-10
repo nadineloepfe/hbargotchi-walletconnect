@@ -1,16 +1,17 @@
-import { Button, TextField, Typography } from "@mui/material";
+import { Button, TextField, Typography, Card, CardContent } from "@mui/material";
 import { Stack } from "@mui/system";
 import { useState } from "react";
 import { useWalletInterface } from "../services/wallets/useWalletInterface";
 import { AccountId, TokenId, PrivateKey } from "@hashgraph/sdk";
+import "../App.css"; // Import the CSS file for shared styles
 
 export default function FeedHbargotchi() {
   const { walletInterface, accountId } = useWalletInterface();
   const [foodAmount, setFoodAmount] = useState<number | "">(""); // Handle empty state correctly
 
   const foodTokenId = TokenId.fromString("0.0.4841066");
-  const foodTokenSupplyKey = PrivateKey.fromString("302e020100300506032b657004220420c99c793170e81d0910cb74bc4f4ed8182454e10edc86a4f2d38d970c8e5f7db8") 
-  const treasuryAccountId = AccountId.fromString("0.0.4668437"); 
+  const foodTokenSupplyKey = PrivateKey.fromString("302e020100300506032b657004220420c99c793170e81d0910cb74bc4f4ed8182454e10edc86a4f2d38d970c8e5f7db8");
+  const treasuryAccountId = AccountId.fromString("0.0.4668437");
 
   // Feed the pet (send 20 $FOOD tokens to the treasury)
   const feedHbargotchi = async () => {
@@ -59,54 +60,72 @@ export default function FeedHbargotchi() {
 
   return (
     <Stack alignItems="center" spacing={4}>
-      <Typography variant="h4" color="white">
-        Feed your Hbargotchi
+      <Typography variant="h4" color="white" align="center">
+        Feed
       </Typography>
       {walletInterface !== null && (
-        <>
-          {/* Section to feed the pet */}
-          <Typography variant="body1" color="white">
-            Send 20 $FOOD tokens to keep your Hbargotchi alive for 3 more days!
-          </Typography>
-          <Button
-            variant="contained"
-            onClick={feedHbargotchi}
-            sx={{ background: 'linear-gradient(90deg, #6a11cb, #2575fc)' }}
-          >
-            Feed
-          </Button>
+        <div className="card-wrapper">
+          {/* Card for feeding Hbargotchi */}
+          <Card className="card">
+            <CardContent>
+              <Typography variant="h5" gutterBottom align="center">
+                Top up
+              </Typography>
+              <Typography variant="body1" color="white" align="center">
+                Send 20 $FOOD tokens to keep your Hbargotchi alive for 3 more days!
+              </Typography>
+              <br></br>
+              <Stack alignItems="center">
+                <Button
+                  variant="contained"
+                  onClick={feedHbargotchi}
+                  className="gradientButton"
+                >
+                  Feed
+                </Button>
+              </Stack>
+            </CardContent>
+          </Card>
 
-          {/* Section to buy food tokens */}
-          <Typography variant="h4" color="white" sx={{ marginTop: '20px' }}>
-            Buy $FOOD Tokens
-          </Typography>
-          <TextField
-            type="number"
-            label="Amount of $FOOD Tokens"
-            value={foodAmount === "" ? "" : foodAmount} 
-            onChange={handleFoodAmountChange}
-            sx={{ width: '250px' }}
-          />
-          <Button
-            variant="contained"
-            onClick={mintFoodTokens} 
-            sx={{ background: 'linear-gradient(90deg, #6a11cb, #2575fc)' }}
-          >
-            Buy
-          </Button>
+          {/* Card for buying $FOOD tokens */}
+          <Card className="card">
+            <CardContent>
+              <Typography variant="h5" gutterBottom align="center">
+                Buy $FOOD Tokens
+              </Typography>
+              <br></br>
+              <Stack alignItems="center">
+                <TextField
+                  type="number"
+                  label="Amount of $FOOD Tokens"
+                  value={foodAmount === "" ? "" : foodAmount}
+                  onChange={handleFoodAmountChange}
+                  className="text-field"
+                />
+                <br></br>
+                <Button
+                  variant="contained"
+                  onClick={mintFoodTokens}
+                  className="gradientButton"
+                >
+                  Buy
+                </Button>
+              </Stack>
+            </CardContent>
+          </Card>
 
-          <Stack direction='row' gap={2} alignItems='center'>
+          <Stack direction='row' gap={2} alignItems='center' justifyContent='center'>
             <Button
               variant='contained'
               onClick={async () => {
                 await walletInterface.associateToken(foodTokenId);
               }}
+              className="gradientButton"
             >
               Associate Token
             </Button>
           </Stack>
-          
-        </>
+        </div>
       )}
     </Stack>
   );

@@ -152,8 +152,8 @@ export class MirrorNodeClient {
     return accountInfoJson;
   }
 
-  async getNftDetails(tokenId: string): Promise<any> {
-    const nftDetailsResponse = await fetch(`${this.url}/api/v1/tokens/${tokenId}`, {
+  async getNftDetails(tokenId: string, serialNumber: number): Promise<any> {
+    const nftDetailsResponse = await fetch(`${this.url}/api/v1/tokens/${tokenId}/nfts/${serialNumber}`, {
       method: "GET",
     });
   

@@ -277,30 +277,6 @@ class MetaMaskWallet implements WalletInterface {
   
     return hash;
   }
-
-  async fetchTokenInfo(tokenId: string) {
-    // Prepare the Contract ID from the Token ID
-    const contractId = ContractId.fromString(tokenId.toString());
-    const parameters = new ContractFunctionParameterBuilder();
-  
-    const txHash = await this.executeContractFunction(
-      contractId,               
-      "tokenInfo",            
-      parameters,               
-      appConfig.constants.METAMASK_GAS_LIMIT_SEND_MESSAGE
-    );
-  
-    console.log(`Transaction hash: ${txHash}`);
-  
-    // Assuming the returned metadata is encoded, decode it if available
-    if (txHash?.metadata) {
-      const decodedMetadata = new TextDecoder().decode(txHash.metadata);
-      return decodedMetadata;
-    } else {
-      console.log("No metadata available for this token.");
-      return null;
-    }
-  }
   
   // Purpose: build contract execute transaction and send to hashconnect for signing and execution
   // Returns: Promise<TransactionId | null>

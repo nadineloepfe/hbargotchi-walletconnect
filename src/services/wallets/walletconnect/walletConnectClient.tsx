@@ -1,7 +1,7 @@
 import { WalletConnectContext } from "../../../contexts/WalletConnectContext";
 import { useCallback, useContext, useEffect } from 'react';
 import { WalletInterface } from "../walletInterface";
-import { AccountId, TokenInfoQuery, ContractExecuteTransaction, TopicMessageSubmitTransaction, ContractId, TopicId, LedgerId, PrivateKey, TokenType, TokenAssociateTransaction, TokenId, Transaction, TransactionId, TransferTransaction, TokenCreateTransaction, TokenMintTransaction, Client } from "@hashgraph/sdk";
+import { AccountId, ContractExecuteTransaction, TopicMessageSubmitTransaction, ContractId, TopicId, LedgerId, PrivateKey, TokenType, TokenAssociateTransaction, TokenId, Transaction, TransactionId, TransferTransaction, TokenCreateTransaction, TokenMintTransaction, Client } from "@hashgraph/sdk";
 import { ContractFunctionParameterBuilder } from "../contractFunctionParameterBuilder";
 import { appConfig } from "../../../config";
 import { SignClientTypes } from "@walletconnect/types";
@@ -210,23 +210,6 @@ class WalletConnectWallet implements WalletInterface {
     console.log(`- Interaction logged to HCS. Message hash: ${interactionHash}`);
 
     return txResult ? txResult.transactionId : null;
-  }
-
-  async fetchTokenInfo(tokenId: string) {
-    const tokenInfoQuery = new TokenInfoQuery()
-      .setTokenId(TokenId.fromString(tokenId));
-  
-    const signer = this.getSigner();
-    const txResult = await tokenInfoQuery.executeWithSigner(signer);
-  
-    if (txResult?.metadata) {
-      const decodedMetadata = new TextDecoder().decode(txResult.metadata);
-      console.log(decodedMetadata)
-      return decodedMetadata;
-    } else {
-      console.log("No metadata available for this token.");
-      return null;
-    }
   }
   
   // Purpose: build contract execute transaction and send to wallet for signing and execution

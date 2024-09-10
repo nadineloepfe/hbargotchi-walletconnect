@@ -38,7 +38,7 @@ export default function FAQ() {
 
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel3a-content" id="panel3a-header">
-            <Typography variant="h6" color="white">3. Which blockchain is Hbargotchi built on?</Typography>
+            <Typography variant="h6" color="white">3. What ledger is Hbargotchi built on?</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Typography variant="body1" color="white">
@@ -67,7 +67,7 @@ export default function FAQ() {
           </AccordionSummary>
           <AccordionDetails>
             <Typography variant="body1" color="white">
-              Your wallet is used to securely store your digital pets on the blockchain. You’ll need a
+              Your wallet is used to securely store your digital pets on ledger. You’ll need a
               compatible wallet to interact with the platform, mint new pets, and manage your existing ones.
             </Typography>
           </AccordionDetails>

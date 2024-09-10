@@ -214,7 +214,6 @@ class WalletConnectWallet implements WalletInterface {
   
 
   async updateNftMetadata(tokenId: TokenId | string, serialNumber: number, newMetadataUri: string, metadataKey: PrivateKey) {
-    try {
       const signer = this.getSigner();
       const formattedTokenId = typeof tokenId === 'string' ? TokenId.fromString(tokenId) : tokenId;
   
@@ -227,22 +226,12 @@ class WalletConnectWallet implements WalletInterface {
       console.log("signing transaction with Metadata Key");
       const signedUpdateTx = await updateTransaction.sign(metadataKey);
   
-      // Execute the transaction with the signer
+      console.log("Executing with signer");
       const txResult = await signedUpdateTx.executeWithSigner(signer);
       console.log("Transaction executed:", txResult);
   
       console.log(`Successfully updated metadata for NFT ${serialNumber} of token ${tokenId}`);
       return txResult ? txResult.transactionId : null;
-  
-    } catch (error) {
-      if (error instanceof Error) {
-        // If the error is an instance of the Error object, handle it
-        console.error("Error updating NFT metadata:", error.message);
-        console.error("Error Stack:", error.stack);
-      }
-  
-      throw error; // Re-throw the error to handle it elsewhere if needed
-    }
   }
   
   async fetchTokenInfo(tokenId: string) {

@@ -1,84 +1,51 @@
-import { useEffect, useState } from "react";
-import { Typography, Box, Stack, Button } from "@mui/material";
-import NftDropdown from "../components/NftDropdown"; 
-import SerialNumberDropdown from "../components/SerialNumberDropdown"; 
-import { fetchNftMetadata, fetchHbargotchiNfts } from "../services/tokenService"; 
+import { useState } from "react";
+import { Typography, Stack, Button } from "@mui/material";
+import { PrivateKey } from "@hashgraph/sdk";
+import NftDropdown from "../components/NftDropdown";
+import SerialNumberDropdown from "../components/SerialNumberDropdown";
+import MetadataDisplay from "../components/MetadataDisplay"; // Import the new MetadataDisplay component
+import { updateNftMetadata } from "../services/tokenService";
 import { updatePlayScoreAndHappiness } from "../services/playService"; 
-import { uploadJsonToPinata } from "../services/ipfsService"; 
+import { uploadJsonToPinata } from "../services/ipfsService";
 import { useWalletInterface } from "../services/wallets/useWalletInterface";
 import { useNavigate } from "react-router-dom";
-import { TokenId, PrivateKey } from "@hashgraph/sdk";
-import { SupportOutlined } from "@mui/icons-material";
+import useFetchNfts from "../hooks/useFetchNfts";
+import useFetchMetadata from "../hooks/useFetchMetadata";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function View() {
-  const { accountId, walletInterface } = useWalletInterface(); 
-  const [nfts, setNfts] = useState<any[]>([]);
+  const { accountId } = useWalletInterface();
   const [selectedTokenId, setSelectedTokenId] = useState<string>('');
   const [selectedSerialNumber, setSelectedSerialNumber] = useState<number | null>(null);
-  const [metadata, setMetadata] = useState<any>(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchNfts = async () => {
-      if (accountId) {
-        try {
-          const fetchedNfts = await fetchHbargotchiNfts(accountId);
-          setNfts(fetchedNfts);
-        } catch (error) {
-          console.error("Error fetching NFTs:", error);
-        }
-      }
-    };
-    fetchNfts();
-  }, [accountId]);
-
-  useEffect(() => {
-    const fetchMetadata = async () => {
-      if (selectedTokenId && selectedSerialNumber) {
-        try {
-          const jsonMetadata = await fetchNftMetadata(selectedTokenId, selectedSerialNumber);
-          console.log("Fetched Metadata:", jsonMetadata);
-          setMetadata(jsonMetadata);
-        } catch (error) {
-          console.error("Error fetching metadata:", error);
-        }
-      }
-    };
-
-    fetchMetadata();
-  }, [selectedTokenId, selectedSerialNumber]);
+  const { nfts, loading: nftLoading } = useFetchNfts(accountId); // Use the custom hook for NFTs
+  const { metadata, loading: metadataLoading, error: metadataError } = useFetchMetadata(selectedTokenId, selectedSerialNumber); // Use the custom hook for metadata
 
   const handlePlay = async () => {
     if (!accountId) {
-      console.error("Error: No accountId found");
+      toast.error("No accountId found");
       return;
     }
 
     if (metadata) {
       const updatedMetadata = updatePlayScoreAndHappiness(metadata);
-
       try {
-        // Upload updated metadata to Pinata and get the IPFS hash
         const ipfsHash = await uploadJsonToPinata(updatedMetadata);
-        console.log(`New metadata file uploaded to IPFS: ${ipfsHash}`);
-
-        // Construct the new metadata URI using the IPFS hash
         const newMetadataUri = `ipfs://${ipfsHash}`;
+        const metadataKey = PrivateKey.fromString("");
 
         if (selectedTokenId && selectedSerialNumber) {
-          const tokenId = selectedTokenId; 
-          const serialNumber = selectedSerialNumber; 
-
-          const metadataKey = PrivateKey.fromString("happyHardcoding")  // -> to be replaced
-          
-          const transactionId = await walletInterface.updateNftMetadata(tokenId, serialNumber, newMetadataUri, metadataKey);
-          console.log(`NFT metadata updated. Transaction ID: ${transactionId}`);
+          console.log("updating metadata now")
+          await updateNftMetadata(selectedTokenId, selectedSerialNumber, newMetadataUri, metadataKey);
+          toast.success(`NFT metadata updated`);
         }
       } catch (error) {
-        console.error("Error uploading metadata to Pinata or updating NFT metadata:", error);
+        console.log(error)
+        toast.error("Error updating NFT metadata");
       }
     } else {
-      console.log("No metadata available to update.");
+      toast.warning("No metadata available to update");
     }
   };
 
@@ -88,9 +55,14 @@ export default function View() {
 
   return (
     <Stack alignItems="center" spacing={4}>
+      <ToastContainer />
       <Typography variant="h4" color="white">View</Typography>
 
-      <NftDropdown nfts={nfts} selectedTokenId={selectedTokenId} onSelect={setSelectedTokenId} />
+      {nftLoading ? (
+        <Typography variant="h6" color="white">Loading NFTs...</Typography>
+      ) : (
+        <NftDropdown nfts={nfts} selectedTokenId={selectedTokenId} onSelect={setSelectedTokenId} />
+      )}
 
       {selectedTokenId && selectedSerialNumber !== 1 && (
         <SerialNumberDropdown
@@ -101,26 +73,14 @@ export default function View() {
         />
       )}
 
-      {metadata && (
-        <Box display="flex" justifyContent="space-between" alignItems="center" width="100%" sx={{ marginTop: '20px' }}>
-          {metadata.files && metadata.files.length > 0 && (
-            <Box flex={1} display="flex" justifyContent="center" alignItems="center" sx={{ marginRight: '20px' }}>
-              <img
-                src={metadata.files[0].uri.replace("ipfs://", "https://ipfs.io/ipfs/")}
-                alt={metadata.name}
-                style={{ maxWidth: "100%", maxHeight: "400px", display: "block" }}
-              />
-            </Box>
-          )}
-
-          <Box flex={1} display="flex" flexDirection="column" justifyContent="center">
-            <Typography variant="h4" color="primary" gutterBottom>{metadata.name}</Typography>
-            <Typography variant="h6" color="white">Rarity: {metadata.properties.rarity}</Typography>
-            <Typography variant="h6" color="white">Character: {metadata.properties.character}</Typography>
-            <Typography variant="h6" color="white">Happiness: {metadata.properties.happiness}</Typography>
-            <Typography variant="h6" color="white">Playscore: {metadata.properties.playscore}</Typography>
-          </Box>
-        </Box>
+      {metadataLoading ? (
+        <Typography variant="h6" color="white">Loading Metadata...</Typography>
+      ) : metadataError ? (
+        <Typography variant="h6" color="red">Error: {metadataError}</Typography>
+      ) : metadata ? (
+        <MetadataDisplay metadata={metadata} />
+      ) : (
+        <Typography variant="h6" color="white">Select an NFT to see details</Typography>
       )}
 
       <Stack direction="row" spacing={2} mt={4}>

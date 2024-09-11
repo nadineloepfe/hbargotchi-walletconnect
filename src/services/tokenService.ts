@@ -2,8 +2,7 @@ import { AccountId, PrivateKey, Client, TokenUpdateNftsTransaction } from "@hash
 import { MirrorNodeClient, MirrorNodeAccountTokenBalanceWithInfo, MirrorNodeNftInfo, MirrorNodeTokenInfo } from "./wallets/mirrorNodeClient";
 import { appConfig } from "../config";
 
-const operatorId = AccountId.fromString("");
-const operatorKey = PrivateKey.fromString("");
+
 const client = Client.forTestnet().setOperator(operatorId, operatorKey);
 
 

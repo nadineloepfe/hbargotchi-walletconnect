@@ -3,7 +3,7 @@ import { Typography, Stack, Button } from "@mui/material";
 import { PrivateKey } from "@hashgraph/sdk";
 import NftDropdown from "../components/NftDropdown";
 import SerialNumberDropdown from "../components/SerialNumberDropdown";
-import MetadataDisplay from "../components/MetadataDisplay"; // Import the new MetadataDisplay component
+import MetadataDisplay from "../components/MetadataDisplay"; 
 import { updateNftMetadata } from "../services/tokenService";
 import { updatePlayScoreAndHappiness } from "../services/playService"; 
 import { uploadJsonToPinata } from "../services/ipfsService";
@@ -19,8 +19,8 @@ export default function View() {
   const [selectedTokenId, setSelectedTokenId] = useState<string>('');
   const [selectedSerialNumber, setSelectedSerialNumber] = useState<number | null>(null);
   const navigate = useNavigate();
-  const { nfts, loading: nftLoading } = useFetchNfts(accountId); // Use the custom hook for NFTs
-  const { metadata, loading: metadataLoading, error: metadataError } = useFetchMetadata(selectedTokenId, selectedSerialNumber); // Use the custom hook for metadata
+  const { nfts, loading: nftLoading } = useFetchNfts(accountId); 
+  const { metadata, loading: metadataLoading, error: metadataError } = useFetchMetadata(selectedTokenId, selectedSerialNumber); 
 
   const handlePlay = async () => {
     if (!accountId) {
@@ -33,7 +33,7 @@ export default function View() {
       try {
         const ipfsHash = await uploadJsonToPinata(updatedMetadata);
         const newMetadataUri = `ipfs://${ipfsHash}`;
-        const metadataKey = PrivateKey.fromString("");
+        const metadataKey = PrivateKey.fromString("302e020100300506032b657004220420e08385da6828e6f8b5d11035870f89918f9220778b7da2bbf0239e9f37afe461");
 
         if (selectedTokenId && selectedSerialNumber) {
           console.log("Updating metadata now")

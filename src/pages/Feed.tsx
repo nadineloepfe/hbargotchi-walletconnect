@@ -10,9 +10,9 @@ export default function FeedHbargotchi() {
   const { walletInterface, accountId } = useWalletInterface();
   const [foodAmount, setFoodAmount] = useState<number | "">(""); 
 
-  const foodTokenId = TokenId.fromString("0.0.4841066");
-  const treasuryAccountId = AccountId.fromString("0.0.4668437");
-  const foodTokenSupplyKey = PrivateKey.fromString("302e020100300506032b657004220420c99c793170e81d0910cb74bc4f4ed8182454e10edc86a4f2d38d970c8e5f7db8");
+  const foodTokenId = TokenId.fromString("");
+  const treasuryAccountId = AccountId.fromString("");
+  const foodTokenSupplyKey = PrivateKey.fromString("");
 
 
   const { transferTokens, mintTokens, loading } = useTokenOperations(walletInterface, accountId);

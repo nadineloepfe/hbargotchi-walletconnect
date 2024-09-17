@@ -7,18 +7,20 @@ import { appConfig } from "../../../config";
 import { SignClientTypes } from "@walletconnect/types";
 import { DAppConnector, HederaJsonRpcMethod, HederaSessionEvent, HederaChainId, SignAndExecuteTransactionParams, transactionToBase64String } from "@hashgraph/hedera-wallet-connect";
 import EventEmitter from "events";
+import { db } from '../../../firebaseConfig'; 
+import firebase from 'firebase/app'; 
+import { doc, setDoc, serverTimestamp } from "firebase/firestore"; 
 
 // Created refreshEvent because `dappConnector.walletConnectClient.on(eventName, syncWithWalletConnectContext)` would not call syncWithWalletConnectContext
 // Reference usage from walletconnect implementation https://github.com/hashgraph/hedera-wallet-connect/blob/main/src/lib/dapp/index.ts#L120C1-L124C9
 const refreshEvent = new EventEmitter();
 
 // Create a new project in walletconnect cloud to generate a project id
-const walletConnectProjectId = "377d75bb6f86a2ffd427d032ff6ea7d3";
+const walletConnectProjectId = process.env.REACT_APP_WALLETCONNECT_ID!;
 const currentNetworkConfig = appConfig.networks.testnet;
 const hederaNetwork = currentNetworkConfig.network;
 const hederaClient = Client.forName(hederaNetwork);
-
-const topicId = TopicId.fromString("0.0.4839813");
+const topicId = TopicId.fromString(process.env.REACT_APP_TOPIC_ID!);
 
 // Adapted from walletconnect dapp example:
 // https://github.com/hashgraph/hedera-wallet-connect/blob/main/src/examples/typescript/dapp/main.ts#L87C1-L101C4
@@ -165,6 +167,16 @@ class WalletConnectWallet implements WalletInterface {
 
       console.log("NFT created! Token Id" + tokenId)
       console.log("MetadataKey:" + metadataKey)
+
+      if (tokenId) {
+      await setDoc(doc(db, 'nft-keys', tokenId.toString()), {
+        tokenId: tokenId.toString(),
+        metadataKey: metadataKey.toString(),
+        supplyKey: supplyKey.toString(),
+        createdAt: serverTimestamp(), 
+      });
+      }
+
       return { tokenId, supplyKey };
   }
 
@@ -215,10 +227,9 @@ class WalletConnectWallet implements WalletInterface {
 
   async updateNftMetadata(tokenId: TokenId | string, serialNumber: number, newMetadataUri: string, metadataKey: PrivateKey) {
       const signer = this.getSigner();
-      const formattedTokenId = typeof tokenId === 'string' ? TokenId.fromString(tokenId) : tokenId;
   
       const updateTransaction = new TokenUpdateNftsTransaction()
-        .setTokenId(formattedTokenId)
+        .setTokenId(tokenId)
         .setSerialNumbers([serialNumber])
         .setMetadata(new TextEncoder().encode(newMetadataUri))
         .freezeWith(hederaClient);

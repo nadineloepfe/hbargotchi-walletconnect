@@ -3,6 +3,8 @@ import { MirrorNodeClient, MirrorNodeAccountTokenBalanceWithInfo, MirrorNodeNftI
 import { appConfig } from "../config";
 
 
+const operatorId = process.env.REACT_APP_TREASURY_ID!;
+const operatorKey = process.env.REACT_APP_TREASURY_PRIVATE_KEY!;
 const client = Client.forTestnet().setOperator(operatorId, operatorKey);
 
 

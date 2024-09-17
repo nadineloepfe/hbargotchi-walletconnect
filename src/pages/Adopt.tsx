@@ -64,7 +64,7 @@ export default function Adopt() {
 
   return (
     <Stack alignItems="center" spacing={5}>
-      <ToastContainer /> {/* Toast container for notifications */}
+      <ToastContainer /> 
 
       <Typography variant="h4" color="white">
         Choose your pet

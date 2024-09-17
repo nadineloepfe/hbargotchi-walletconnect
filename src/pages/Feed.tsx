@@ -10,10 +10,9 @@ export default function FeedHbargotchi() {
   const { walletInterface, accountId } = useWalletInterface();
   const [foodAmount, setFoodAmount] = useState<number | "">(""); 
 
-  const foodTokenId = TokenId.fromString("");
-  const treasuryAccountId = AccountId.fromString("");
-  const foodTokenSupplyKey = PrivateKey.fromString("");
-
+  const foodTokenId = TokenId.fromString(process.env.REACT_APP_FOOD_TOKEN_ID!);
+  const treasuryAccountId = AccountId.fromString(process.env.REACT_APP_TREASURY_ID!);
+  const foodTokenSupplyKey = PrivateKey.fromString(process.env.REACT_APP_FOOD_TOKEN_SUPPLY_KEY!);
 
   const { transferTokens, mintTokens, loading } = useTokenOperations(walletInterface, accountId);
 

@@ -8,12 +8,7 @@ import Logo from "../assets/hbar-logo.svg";
 import './Navbar.css'; 
 
 const pages = [
-  { name: 'Adopt', path: '/adopt' },
-  { name: 'View', path: '/view' },
-  { name: 'Feed', path: '/feed' }, 
-  { name: 'Gift', path: '/gift' },
-  { name: 'Community', path: '/community' }
-  // { name: 'FAQ', path: '/faq' }
+  { name: 'Topic create', path: '/' },
 ];
 
 export default function NavBar() {
@@ -42,13 +37,12 @@ export default function NavBar() {
     <AppBar position='relative'>
       <Toolbar className='navBar' sx={{ justifyContent: 'space-between' }}>
         
-        {/* Logo and HBG Text */}
         <Box display="flex" alignItems="center">
           <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
             <img src={Logo} alt="Brand Logo" style={{ height: 30, marginRight: 8 }} />
           </Link>
           <Typography variant="h6" className='logo-title' color="white">
-            HBG
+            HCS Test
           </Typography>
         </Box>
 
